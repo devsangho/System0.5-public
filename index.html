@@ -232,6 +232,8 @@ input[type=range]{flex:1;min-width:0;accent-color:#e68670}
 .bib{position:relative;background:var(--night-raised);border:1px solid var(--night-line);border-radius:14px;padding:22px 24px;overflow:auto}
 .bib pre{margin:0;font-family:var(--font-mono);font-size:13px;line-height:1.6;color:var(--night-body)}
 .bib button{position:absolute;right:12px;top:12px}
+.visitor-map{width:calc(100% - 44px);max-width:300px;margin:0 auto;padding:0 0 56px;text-align:center;overflow:hidden;border:0}
+.visitor-map img,.visitor-map iframe,.visitor-map canvas{max-width:100%}
 footer{padding:40px 0 60px;font-size:13px;color:var(--faint);border-top:1px solid var(--line)}
 
 /* reveal */
@@ -595,6 +597,10 @@ footer{padding:40px 0 60px;font-size:13px;color:var(--faint);border-top:1px soli
 
 <footer>
   <div class="wrap">System 0.5 · POSTECH · Every number and chart on this page is generated from the paper's result files.</div>
+</footer>
+
+<footer class="visitor-map" aria-label="Visitor map">
+  <script type="text/javascript" id="mapmyvisitors" src="//mapmyvisitors.com/map.js?d=4lQaJAc9dv2iOdEexgbHM6R4udam78uNUl4o6sh7yNo&cl=ffffff&w=a"></script>
 </footer>
 
 <div class="lightbox" id="lb" role="dialog" aria-modal="true" aria-label="Clip">
