@@ -56,6 +56,11 @@ function chips(group, cb) {
 function txt(ctx, s, x, y, {size = 12, color = C.muted, font = FONT, weight = 500, align = "left", base = "alphabetic"} = {}) {
   ctx.font = `${weight} ${size}px ${font}`; ctx.fillStyle = color; ctx.textAlign = align; ctx.textBaseline = base; ctx.fillText(s, x, y);
 }
+function txtBg(ctx, s, x, y, o = {}, bg = "#fff") {
+  ctx.font = `${o.weight || 500} ${o.size || 12}px ${o.font || FONT}`; const tw = ctx.measureText(s).width, sz = o.size || 12;
+  const x0 = o.align === "right" ? x - tw : o.align === "center" ? x - tw / 2 : x;
+  ctx.fillStyle = bg; ctx.fillRect(x0 - 3, y - sz, tw + 6, sz + 5); txt(ctx, s, x, y, o);
+}
 function rr(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); }
 function ring(ctx, x, y, r, col, a = 1) { ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.strokeStyle = col; ctx.globalAlpha = a; ctx.stroke(); ctx.globalAlpha = 1; }
 function dot(ctx, x, y, r, col) { ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = col; ctx.fill(); }
@@ -109,7 +114,9 @@ $$("[data-count]").forEach(el => onReveal(el.closest(".stat"), () => {
       rr(ctx, X0, b.y, bw, b.hh, 16); ctx.fillStyle = k === 1 ? "rgba(255,255,255,.78)" : "rgba(255,255,255,.5)"; ctx.fill();
       ctx.lineWidth = k === 1 ? 1.6 : 1; ctx.strokeStyle = k === 1 ? gradH(ctx, X0, X1) : "rgba(16,20,27,.12)"; ctx.stroke();
       txt(ctx, b.name, X0 + 16, b.y + 24, {size: 15, color: C.ink, weight: 650, font: '"Geist",' + FONT});
-      txt(ctx, b.sub.toUpperCase(), X1 - 14, b.y + 22, {size: 9.5, color: C.faint, font: MONO, align: "right"});
+      ctx.font = `650 15px "Geist",${FONT}`; const nw = ctx.measureText(b.name).width; ctx.font = `500 9.5px ${MONO}`; const sw = ctx.measureText(b.sub.toUpperCase()).width;
+      const fits = 16 + nw + 18 + sw + 14 <= bw;
+      txt(ctx, b.sub.toUpperCase(), X1 - 14, fits ? b.y + 22 : b.y + b.hh - 10, {size: fits ? 9.5 : 8.5, color: C.faint, font: MONO, align: "right"});
     });
     // beam scanning System 0.5 while correcting
     const cy = [B[0].y + B[0].hh * .62, B[1].y + B[1].hh * .62];
@@ -130,8 +137,9 @@ $$("[data-count]").forEach(el => onReveal(el.closest(".stat"), () => {
       polyline(ctx, rawPts, pd * (N - 1), "rgba(139,147,158,.9)", 1.6, [5, 4]);
       polyline(ctx, nomPts, pd * (N - 1), gradH(ctx, X0, X1), 2.6);
       if (pd > .98) {
-        const [ex, ey] = rawPts[N - 1]; txt(ctx, "no layer", ex + 6, ey + 4, {size: 10.5, color: C.muted, font: MONO});
-        const [nx, ny] = nomPts[N - 1]; txt(ctx, "nominal", nx + 6, ny + 4, {size: 10.5, color: C.coral2, font: MONO});
+        const [ex, ey] = rawPts[N - 1], [nx, ny] = nomPts[N - 1], up = ny <= ey;
+        txtBg(ctx, "nominal", nx, up ? ny - 10 : ny + 18, {size: 10.5, color: C.coral2, font: MONO, align: "right"}, "rgba(247,248,246,.94)");
+        txtBg(ctx, "no layer", ex, up ? ey + 18 : ey - 10, {size: 10.5, color: C.muted, font: MONO, align: "right"}, "rgba(247,248,246,.94)");
       }
       txt(ctx, "hand path", X0 + 16, B[2].y + B[2].hh - 12, {size: 10, color: C.faint, font: MONO});
     }
@@ -187,7 +195,7 @@ $$("[data-count]").forEach(el => onReveal(el.closest(".stat"), () => {
     const a = at(nom, u), b = at(chg, u);
     ctx.strokeStyle = C.coral; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.stroke();
     dot(ctx, ...a, 5, sig(u / (NT - 1))); dot(ctx, ...b, 4.5, C.slate); ring(ctx, ...b, 9, C.coral, .5);
-    txt(ctx, "start", nom[0][0] + 8, nom[0][1] - 8, {size: 11, color: C.muted, font: MONO});
+    txt(ctx, "start", nom[0][0] - 10, nom[0][1] + 4, {size: 11, color: C.muted, font: MONO, align: "right"});
     const i0 = Math.floor(u), g = lerp(G[sel][i0], G[sel][Math.min(i0 + 1, NT - 1)], u - i0);
     $("#rp-tick").textContent = Math.round(u); $("#rp-time").textContent = (u * P.dt).toFixed(2) + " s";
     $("#rp-gap").textContent = g.toFixed(1) + " mm"; $("#rp-chunk").textContent = Math.min(Math.floor(u / P.n_exec) + 1, 6);
@@ -234,7 +242,7 @@ $$("[data-count]").forEach(el => onReveal(el.closest(".stat"), () => {
     const g = ctx.createRadialGradient(nom[5][0], nom[5][1], 4, nom[5][0], nom[5][1], L * 2.4);
     g.addColorStop(0, "rgba(247,216,202,.75)"); g.addColorStop(1, "rgba(247,216,202,0)");
     ctx.fillStyle = g; ctx.beginPath(); ctx.arc(nom[5][0], nom[5][1], L * 2.4, 0, 7); ctx.fill();
-    txt(ctx, "STATES IN THE DEMONSTRATIONS", nom[5][0], nom[5][1] + L * 1.7, {size: 9.5, font: MONO, color: C.coral2, align: "center"});
+    txt(ctx, "STATES IN THE DEMONSTRATIONS", 14, nom[5][1] + L * 1.7, {size: 9.5, font: MONO, color: C.coral2});
     // current commanded step from the nominal hand: the target it asks for
     const i = Math.min(Math.floor(k), N - 1), f = k - Math.floor(k);
     if (k < N) {
@@ -247,11 +255,11 @@ $$("[data-count]").forEach(el => onReveal(el.closest(".stat"), () => {
     polyline(ctx, nom, k, gradH(ctx, sx, nom[N][0] + 10), 3.2);
     const pc = at(cmd, k), pn = at(nom, k);
     dot(ctx, ...pc, 6, C.slate); dot(ctx, ...pn, 6, sig(.85)); ring(ctx, ...pn, 11, C.coral, .45);
-    txt(ctx, "follow the command", pc[0] - 8, pc[1] - 14, {size: 11, color: C.body, weight: 600, align: "right"});
+    txt(ctx, "follow the command", pc[0] - 4, pc[1] + 22, {size: 11, color: C.body, weight: 600, align: "right"});
     txt(ctx, "nominal", pn[0] + 12, pn[1] + 18, {size: 11, color: C.coral2, weight: 600});
     txt(ctx, `TICK ${Math.min(Math.floor(k), N)} / ${N}`, 16, 22, {size: 10, font: MONO, color: C.faint});
     txt(ctx, `per tick: nominal ${RATIO.toFixed(2)} · command 1.00 of the step`, 16, 38, {size: 10, font: MONO, color: C.faint});
-    if (k >= N) txt(ctx, `${(1 / RATIO).toFixed(1)}× farther →`, pc[0] - 8, pc[1] + 22, {size: 12, font: MONO, color: C.ink, weight: 600, align: "right"});
+    if (k >= N) txt(ctx, `${(1 / RATIO).toFixed(1)}× farther per tick`, pc[0] - 4, pc[1] + 40, {size: 12, font: MONO, color: C.ink, weight: 600, align: "right"});
   });
 })();
 function hbars(el, rows, {max = 100, marker = null, markerLabel = ""} = {}) {
@@ -315,7 +323,7 @@ function hbars(el, rows, {max = 100, marker = null, markerLabel = ""} = {}) {
   [["0", "#c3d1e4"], [".3", "#97aecc"], [".7", "#f09a82"], ["1", "#f7d8ca"]].forEach(([o, c]) => el("stop", {offset: o, "stop-color": c}, lg));
   const nodes = {
     vla: {x: 24, y: 24, w: 130, h: 64, t: "VLA", s: "π0.5 · frozen"},
-    hist: {x: 190, y: 150, w: 150, h: 62, t: "History", s: "last 48 ticks · 2.4 s"},
+    hist: {x: 190, y: 146, w: 150, h: 76, t: "History", s: "last 48 ticks · 2.4 s"},
     rls: {x: 190, y: 238, w: 150, h: 62, t: "RLS statistics", s: "maps M0…M4"},
     enc: {x: 380, y: 178, w: 100, h: 94, t: "Encoder", s: "→ z ∈ R64"},
     head: {x: 520, y: 166, w: 120, h: 118, t: "Action head", s: "α · δK · δk · r"},
@@ -326,7 +334,7 @@ function hbars(el, rows, {max = 100, marker = null, markerLabel = ""} = {}) {
   const paths = {
     chunk: "M154 56 L 580 56 L 580 166",
     meas: "M 625 402 L 625 418 L 120 418 L 120 181 L 190 181",
-    h2r: "M 265 212 L 265 238",
+    h2r: "M 265 222 L 265 238",
     h2e: "M 340 181 L 380 205", r2e: "M 340 269 L 380 245",
     e2h: "M 480 225 L 520 225",
     u: "M 600 284 L 600 336",
@@ -345,7 +353,7 @@ function hbars(el, rows, {max = 100, marker = null, markerLabel = ""} = {}) {
     N[k] = {g, shape};
   }
   // little glyphs: history traces, RLS bars, z vector, head bars
-  const hg = el("g", {}); for (let j = 0; j < 3; j++) { let d = ""; for (let x = 0; x <= 126; x += 6) d += (x ? "L" : "M") + (nodes.hist.x + 12 + x) + " " + (nodes.hist.y + 52 - j * 4 + 3 * Math.sin(x / 11 + j * 2)); el("path", {d, stroke: "#5c7699", "stroke-opacity": .35 + .2 * j, fill: "none", "stroke-width": 1}, hg); }
+  const hg = el("g", {}); for (let j = 0; j < 3; j++) { let d = ""; for (let x = 0; x <= 126; x += 6) d += (x ? "L" : "M") + (nodes.hist.x + 12 + x) + " " + (nodes.hist.y + 64 - j * 4 + 3 * Math.sin(x / 11 + j * 2)); el("path", {d, stroke: "#5c7699", "stroke-opacity": .35 + .2 * j, fill: "none", "stroke-width": 1}, hg); }
   const rlsBars = [0, 1, 2, 3, 4].map(d => el("rect", {x: nodes.rls.x + 92 + d * 10, y: nodes.rls.y + 40, width: 7, height: 12, rx: 1.5, fill: d === 2 ? "url(#pg)" : "#3a4658"}));
   const zc = [...Array(8)].map((_, i) => el("rect", {x: 490, y: 192 + i * 9, width: 18, height: 6, rx: 1.5, fill: "#3a4658"}));
   el("text", {x: 492, y: 186, fill: "#c9d1dc", "font-size": 12, "font-style": "italic", "font-family": "Geist,sans-serif"}).textContent = "z";
@@ -416,15 +424,15 @@ function hbars(el, rows, {max = 100, marker = null, markerLabel = ""} = {}) {
     const top = 30, mid = h * .48, L = 40, R = w - 20;
     txt(ctx, "LAST 48 TICKS", L, 20, {size: 10, font: MONO, color: C.nmuted});
     const n = Math.min(HIST, U.length), X = i => L + (R - L) * i / (HIST - 1);
-    const row = (arr, y0, col, lw) => { ctx.beginPath(); for (let i = 0; i < n; i++) { const v = arr[arr.length - n + i]; const x = X(i), y = y0 - v * 24; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.stroke(); };
-    const y1 = top + 42, y2 = top + 128;
+    const row = (arr, y0, col, lw) => { ctx.beginPath(); for (let i = 0; i < n; i++) { const v = arr[arr.length - n + i]; const x = X(i), y = y0 - clamp(v, -1.25, 1.25) * 20; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.stroke(); };
+    const y1 = top + 46, y2 = y1 + 84;
     ctx.strokeStyle = "rgba(255,255,255,.06)"; [y1, y2].forEach(y => { ctx.beginPath(); ctx.moveTo(L, y); ctx.lineTo(R, y); ctx.stroke(); });
     row(U, y1, "#778daa", 1.4); const g = ctx.createLinearGradient(L, 0, R, 0); g.addColorStop(0, "#97aecc"); g.addColorStop(1, "#f09a82"); row(M, y2, g, 1.8);
-    txt(ctx, "command sent", L, y1 - 30, {size: 10.5, color: C.nmuted, font: MONO}); txt(ctx, "measured motion", L, y2 - 34, {size: 10.5, color: C.nmuted, font: MONO});
+    txt(ctx, "command sent", L, y1 - 30, {size: 10.5, color: C.nmuted, font: MONO}); txt(ctx, "measured motion", L, y2 - 32, {size: 10.5, color: C.nmuted, font: MONO});
     // lag bars
-    const bt = mid + 46, bb = h - 34, bw = (R - L) / LAG * .56, mx = 2.2;
+    const bt = y2 + 66, bb = h - 34, bw = (R - L) / LAG * .56, mx = 2.2;
     let best = 0; for (let d = 1; d < LAG; d++) if (Math.abs(shown[d]) > Math.abs(shown[best])) best = d;
-    txt(ctx, "RLS MAP SIZE |M_d| PER LAG", L, mid + 26, {size: 10, font: MONO, color: C.nmuted});
+    txt(ctx, "RLS MAP SIZE |M_d| PER LAG", L, y2 + 42, {size: 10, font: MONO, color: C.nmuted});
     for (let d = 0; d < LAG; d++) {
       const cx = L + (R - L) * (d + .5) / LAG, v = Math.abs(shown[d]), hh = (bb - bt) * clamp(v / mx, 0, 1);
       ctx.fillStyle = "rgba(255,255,255,.04)"; rr(ctx, cx - bw / 2, bt, bw, bb - bt, 4); ctx.fill();
@@ -486,10 +494,10 @@ function hbars(el, rows, {max = 100, marker = null, markerLabel = ""} = {}) {
   const set = s => { stp = s; ts = 0; btns.forEach((b, i) => b.classList.toggle("on", i === s)); cap.innerHTML = CAP[s]; };
   btns.forEach((b, i) => b.addEventListener("click", () => { set(i); st.kick(); }));
   set(0);
-  const st = stage(cv, w => w < 640 ? 1.1 : 2.3, (s, dt) => {
+  const st = stage(cv, w => w < 640 ? .72 : 2.3, (s, dt) => {
     const {ctx, w, h} = s; ts += dt; if (!RM && ts > DUR[stp]) set((stp + 1) % 5);
     const p = RM ? 1 : clamp(ts / (DUR[stp] * .7), 0, 1), narrow = w < 640;
-    const PW = narrow ? w : w * .6, L = 40, R = PW - 30, cy = h * (narrow ? .3 : .55), span = R - L;
+    const PW = narrow ? w : w * .6, L = 40, R = PW - 30, cy = h * (narrow ? .27 : .55), span = R - L;
     const ref = [...Array(H + 1)].map((_, j) => [L + span * j / H, cy - Math.sin(j / H * 2.2) * h * .16]);
     const act = ref.map(([x, y], j) => [x, y + Math.pow(j / H, 1.5) * h * .2]);
     const cf = act.map(([x, y], j) => [x, lerp(y, ref[j][1], .78 * (stp >= 3 ? (stp === 3 ? ease3(p) : 1) : 0))]);
@@ -497,20 +505,20 @@ function hbars(el, rows, {max = 100, marker = null, markerLabel = ""} = {}) {
     // state node + copy
     dot(ctx, ...ref[0], 6, C.ink);
     if (stp === 0) { const o = ease3(p) * 18; ring(ctx, ref[0][0], ref[0][1] - o, 9, C.blue, .9); ring(ctx, ref[0][0], ref[0][1] + o, 9, C.slate, .9); txt(ctx, "simulator state s(τn)", ref[0][0] + 14, ref[0][1] - 26, {size: 11, color: C.body}); txt(ctx, "copy", ref[0][0] + 16, ref[0][1] + 4, {size: 11, font: MONO, color: C.blue}); }
-    if (stp >= 1) { polyline(ctx, ref, (stp === 1 ? p : 1) * H, gradH(ctx, L, R), 2.6, [6, 4]); txt(ctx, "nominal execution (copy, nominal System 0)", ref[H][0] - 4, ref[H][1] - 12, {size: 11, color: C.coral2, align: "right", weight: 600}); }
+    if (stp >= 1) { polyline(ctx, ref, (stp === 1 ? p : 1) * H, gradH(ctx, L, R), 2.6, [6, 4]); txt(ctx, "nominal execution (copy, nominal System 0)", L + span * .12, Math.min(...ref.map(q => q[1])) - 16, {size: 11, color: C.coral2, weight: 600}); }
     if (stp >= 2) {
       const u = (stp === 2 ? p : 1) * H; polyline(ctx, act, u, C.slate, 2.2);
-      for (let j = 1; j <= Math.floor(u); j++) { ctx.strokeStyle = "rgba(230,134,112,.7)"; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(act[j][0], act[j][1]); ctx.lineTo(...ref[j]); ctx.stroke(); }
+      for (let j = 1; j <= Math.floor(u); j++) { ctx.strokeStyle = stp === 2 ? "rgba(230,134,112,.7)" : "rgba(230,134,112,.22)"; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(act[j][0], act[j][1]); ctx.lineTo(...ref[j]); ctx.stroke(); }
       txt(ctx, "changed System 0 + layer", act[H][0] - 4, act[H][1] + 20, {size: 11, color: C.muted, align: "right"});
-      if (u >= H) txt(ctx, "e", act[H][0] + 8, (act[H][1] + ref[H][1]) / 2 + 4, {size: 14, color: C.coral2, weight: 600, font: '"Geist",' + FONT});
+      if (u >= H && stp === 2) txt(ctx, "e", act[H][0] + 8, (act[H][1] + ref[H][1]) / 2 + 4, {size: 14, color: C.coral2, weight: 600, font: '"Geist",' + FONT});
     }
     if (stp >= 3) {
       polyline(ctx, cf, H, sig(.75), 2.2);
       for (let j = 1; j <= H; j++) { ctx.strokeStyle = "rgba(201,100,77,.9)"; ctx.lineWidth = 2.2; ctx.beginPath(); ctx.moveTo(cf[j][0], cf[j][1]); ctx.lineTo(...ref[j]); ctx.stroke(); }
-      txt(ctx, "e′ (counterfactual)", cf[H][0] + 8, cf[H][1] + 4, {size: 11, color: C.coral2, weight: 600});
+      txtBg(ctx, "e′ (counterfactual)", cf[H][0] - 8, cf[H][1] + 20, {size: 11, color: C.coral2, weight: 600, align: "right"});
     }
     // right panel: J and loss
-    const px = narrow ? 30 : PW + 10, py = narrow ? h * .6 : 40, cs = narrow ? Math.min(14, (w - 60) / 20) : Math.min(15, (w - PW - 40) / 12);
+    const px = narrow ? 30 : PW + 10, py = narrow ? h * .56 : 40, cs = narrow ? Math.min(14, (w - 60) / 20) : Math.min(15, (w - PW - 40) / 12);
     if (stp >= 3) {
       txt(ctx, "J  (8 × 8 blocks, lower triangular)", px, py - 10, {size: 10.5, font: MONO, color: C.muted});
       for (let k = 0; k < H; k++) for (let i = 0; i <= k; i++) {
@@ -521,11 +529,12 @@ function hbars(el, rows, {max = 100, marker = null, markerLabel = ""} = {}) {
       txt(ctx, "= change of motion", bx, py + H * cs / 2 + 18, {size: 11, font: MONO, color: C.muted});
     }
     if (stp >= 4) {
-      const ly = py + H * cs + 30; rr(ctx, px, ly, 170, 40, 8); ctx.fillStyle = C.ink; ctx.fill();
+      const bw1 = narrow ? 130 : 170, bw2 = narrow ? 118 : 130, gap = narrow ? 28 : 40;
+      const ly = py + H * cs + 30; rr(ctx, px, ly, bw1, 40, 8); ctx.fillStyle = C.ink; ctx.fill();
       txt(ctx, "∇ loss(e′)", px + 14, ly + 25, {size: 13, font: MONO, color: "#fff", weight: 600});
-      const hx = px + 210, hy = ly + 20; rr(ctx, hx, ly, 130, 40, 8); ctx.strokeStyle = gradH(ctx, hx, hx + 130); ctx.lineWidth = 1.6; ctx.stroke();
+      const hx = px + bw1 + gap, hy = ly + 20; rr(ctx, hx, ly, bw2, 40, 8); ctx.strokeStyle = gradH(ctx, hx, hx + bw2); ctx.lineWidth = 1.6; ctx.stroke();
       txt(ctx, "head + encoder", hx + 14, ly + 25, {size: 12, color: C.ink, weight: 600});
-      const u = (ts * 1.3) % 1; for (let i = 0; i < 3; i++) { const v = (u + i / 3) % 1; dot(ctx, lerp(px + 172, hx - 4, v), hy, 3.4, sig(v)); }
+      const u = (ts * 1.3) % 1; for (let i = 0; i < 3; i++) { const v = (u + i / 3) % 1; dot(ctx, lerp(px + bw1 + 2, hx - 4, v), hy, 3.4, sig(v)); }
       txt(ctx, "forward model frozen", px, ly + 62, {size: 10.5, font: MONO, color: C.faint});
     }
   });
@@ -588,23 +597,25 @@ function hbars(el, rows, {max = 100, marker = null, markerLabel = ""} = {}) {
   const svg = $("#scatter"); if (!svg) return;
   const NS = "http://www.w3.org/2000/svg", el = (n, a, p = svg) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); p.appendChild(e); return e; };
   const pts = D.scatter.points, L = 56, R = 540, T = 20, B = 350;
-  const xmin = 5.5, xmax = Math.ceil(Math.max(...pts.map(p => p.track)) + .5), ymin = 30, ymax = 95;
+  const xmin = 5.5, xmax = Math.ceil(Math.max(...pts.map(p => p.track)) + .5), ymin = 20, ymax = 95;
   const X = v => L + (R - L) * (v - xmin) / (xmax - xmin), Y = v => B - (B - T) * (v - ymin) / (ymax - ymin);
   const defs = el("defs", {}), g = el("linearGradient", {id: "sg", x1: 0, x2: 1}, defs);
   [["0", "#3f5876"], ["1", "#c9644d"]].forEach(([o, c]) => el("stop", {offset: o, "stop-color": c}, g));
-  for (let v = 40; v <= 90; v += 10) { el("line", {x1: L, x2: R, y1: Y(v), y2: Y(v), class: "gl"}); el("text", {x: L - 10, y: Y(v) + 4, "text-anchor": "end"}).textContent = v + "%"; }
+  for (let v = 30; v <= 90; v += 10) { el("line", {x1: L, x2: R, y1: Y(v), y2: Y(v), class: "gl"}); el("text", {x: L - 10, y: Y(v) + 4, "text-anchor": "end"}).textContent = v + "%"; }
   for (let v = 6; v <= xmax; v += 2) { el("text", {x: X(v), y: B + 20, "text-anchor": "middle"}).textContent = v; }
   el("line", {x1: L, x2: R, y1: B, y2: B, class: "ax"});
   el("text", {x: (L + R) / 2, y: B + 42, "text-anchor": "middle"}).textContent = "mean tracking error against the nominal execution (mm) →";
   el("text", {x: R, y: T + 4, "text-anchor": "end", class: "v", style: "font-size:13px"}).textContent = `Spearman ρ = ${D.scatter.rho.toFixed(2)}`;
   const LBL = {"L13-L13v3": "System 0.5", PASS: "pass-through", "L13-L13v3-cmd": "target: command", "SAC-SACv3": "Residual SAC"};
-  const DY = {PASS: 22, "L13-L13v3-cmd": -14};
+  const DY = {"L13-L13v3-cmd": -14};
+  const PASS = pts.find(p => p.key === "PASS"), lx = X(PASS.track + .95), lyy = Y(PASS.success + 5);
+  const leader = el("line", {x1: X(PASS.track) + 4, y1: Y(PASS.success) - 3, x2: lx - 3, y2: lyy + 2, stroke: "#8b939e", "stroke-width": .8, opacity: 0});
   const order = [...pts].sort((a, b) => a.track - b.track);
   const nodes = order.map(p => {
     const ours = p.key === "L13-L13v3", gg = el("g", {style: "cursor:default"});
     const c = el("circle", {cx: X(p.track), cy: Y(ymin), r: ours ? 8 : 5.5, fill: ours ? "url(#sg)" : (p.key.startsWith("L13") ? "#778daa" : "#8b939e"), opacity: 0}, gg);
     el("title", {}, c).textContent = `${p.name}: ${p.track.toFixed(2)} mm, ${p.success.toFixed(1)}%`;
-    const tl = el("text", {x: X(p.track) + (p.track > 15 ? -12 : 12), y: Y(p.success) + 4 + (DY[p.key] || 0), "text-anchor": p.track > 15 ? "end" : "start", opacity: 0, fill: ours ? "#10141b" : "#69717c", "font-weight": ours ? 700 : 400}, gg);
+    const tl = el("text", {x: p.key === "PASS" ? lx : X(p.track) + (p.track > 15 ? -12 : 12), y: p.key === "PASS" ? lyy + 4 : Y(p.success) + 4 + (DY[p.key] || 0), "text-anchor": p.track > 15 ? "end" : "start", opacity: 0, fill: ours ? "#10141b" : "#69717c", "font-weight": ours ? 700 : 400}, gg);
     tl.textContent = LBL[p.key] || p.name;
     const always = !!LBL[p.key];
     gg.addEventListener("mouseenter", () => tl.setAttribute("opacity", 1)); gg.addEventListener("mouseleave", () => tl.setAttribute("opacity", always ? 1 : 0));
@@ -613,7 +624,7 @@ function hbars(el, rows, {max = 100, marker = null, markerLabel = ""} = {}) {
   });
   onReveal(svg, () => nodes.forEach((n, i) => setTimeout(() => tween(900, t => {
     const k = ease(t); n.c.setAttribute("cy", lerp(Y(ymin) + 10, Y(n.p.success), k)); n.c.setAttribute("opacity", Math.min(1, t * 2));
-    if (n.always) n.tl.setAttribute("opacity", k);
+    if (n.always) n.tl.setAttribute("opacity", k); if (n.p.key === "PASS") leader.setAttribute("opacity", k);
   }), RM ? 0 : i * 110)), .3);
 })();
 

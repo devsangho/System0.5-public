@@ -54,7 +54,9 @@ section{padding:clamp(84px,9vw,140px) 0;position:relative}
 .cap b{color:var(--ink);font-weight:600}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,4vw,64px);align-items:center}
 .grid-2.top{align-items:start}
-@media(max-width:900px){.grid-2{grid-template-columns:1fr}}
+.grid-2.wide-l{grid-template-columns:1.35fr .65fr}
+.grid-2>*{min-width:0}
+@media(max-width:900px){.grid-2,.grid-2.wide-l{grid-template-columns:1fr}}
 .card{background:var(--glass);border:1px solid var(--line);border-radius:16px;padding:clamp(18px,2vw,28px);backdrop-filter:blur(6px)}
 .sec-head{margin-bottom:clamp(32px,4vw,56px)}
 
@@ -90,7 +92,7 @@ section{padding:clamp(84px,9vw,140px) 0;position:relative}
 @media(max-width:720px){.nav ul li:nth-child(n+4){display:none}}
 
 /* hero */
-.hero{min-height:100svh;display:flex;align-items:center;padding:96px 0 72px;overflow:hidden}
+.hero{position:relative;min-height:100svh;display:flex;align-items:center;padding:96px 0 72px;overflow:hidden}
 .hero .wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(20px,4vw,60px);align-items:center;position:relative;z-index:2}
 @media(max-width:980px){.hero .wrap{grid-template-columns:1fr}}
 .wordmark{font-family:var(--font-latin);font-size:clamp(70px,10vw,158px);font-weight:400;letter-spacing:-.078em;line-height:.86;color:var(--ink);margin:22px 0 26px;white-space:nowrap}
@@ -137,6 +139,9 @@ section{padding:clamp(84px,9vw,140px) 0;position:relative}
 .stage{position:relative;background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden}
 .night .stage{background:#0d131b;border-color:var(--night-line)}
 .stage canvas,.stage svg{display:block;width:100%}
+.stage.scroll{overflow-x:auto}
+.stage.scroll svg{min-width:640px}
+.stage.scroll.sm svg{min-width:480px}
 .ctrl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 14px}
 .chip{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 15px;border-radius:999px;border:1px solid var(--line-strong);background:rgba(255,255,255,.6);color:var(--body);font:500 13px var(--font-sans);cursor:pointer;transition:all .25s var(--ease)}
 .chip:hover{border-color:var(--blue-light);color:var(--ink)}
@@ -163,7 +168,9 @@ section{padding:clamp(84px,9vw,140px) 0;position:relative}
 .sl{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--night-muted);margin:6px 0}
 .sl label{width:120px;flex:none}
 .sl output{font-family:var(--font-mono);color:var(--night-ink);width:70px;text-align:right}
-input[type=range]{flex:1;accent-color:#e68670}
+input[type=range]{flex:1;min-width:0;accent-color:#e68670}
+@media(max-width:560px){.hb .row{grid-template-columns:1fr 60px;gap:4px 10px}.hb .row .tr{grid-column:1/-1;grid-row:2}}
+@media(max-width:420px){.wordmark{font-size:clamp(52px,18.5vw,70px)}.sl{gap:8px}.sl label{width:78px}.sl output{width:54px}}
 
 /* pipeline steps */
 .steps{list-style:none;margin:0;padding:0;border-top:1px solid var(--night-line)}
@@ -378,9 +385,9 @@ footer{padding:40px 0 60px;font-size:13px;color:var(--faint);border-top:1px soli
       <h2 class="rv" style="--d:80ms">Identify System&nbsp;0 from its own history, then correct</h2>
       <p class="lede rv" style="--d:160ms">System 0.5 sits between a <b>frozen VLA</b> and System 0. Once per 50 ms tick it reads its own history of commands and measured motion, summarizes the current System 0 as a vector <span class="mono">z</span>, and corrects the arm command. It never sees the parameters of System 0. One tick takes about <b>1 ms on one CPU thread</b>.</p>
     </div>
-    <div class="grid-2 top" style="grid-template-columns:1.35fr .65fr">
+    <div class="grid-2 top wide-l">
       <div class="rv">
-        <div class="stage"><svg id="pipe" viewBox="0 0 760 430" role="img" aria-label="Deployment pipeline of System 0.5"></svg></div>
+        <div class="stage scroll"><svg id="pipe" viewBox="0 0 760 430" role="img" aria-label="Deployment pipeline of System 0.5"></svg></div>
       </div>
       <div class="rv" style="--d:120ms">
         <ol class="steps" id="pipe-steps">
@@ -499,7 +506,7 @@ footer{padding:40px 0 60px;font-size:13px;color:var(--faint);border-top:1px soli
         <button class="chip" data-k="jp">J-PARC · 6 settings</button>
       </div>
       <div class="kpis" id="ext-kpis"></div>
-      <div class="stage" style="padding:18px 18px 8px"><svg id="ext-chart" class="chart" viewBox="0 0 1000 380" role="img" aria-label="Success per scenario: our base, best reported method, System 0.5"></svg></div>
+      <div class="stage scroll" style="padding:18px 18px 8px"><svg id="ext-chart" class="chart" viewBox="0 0 1000 380" role="img" aria-label="Success per scenario: our base, best reported method, System 0.5"></svg></div>
       <div class="legend"><span><i style="background:#c9ced4;height:8px"></i>π<sub>0.5</sub> base (our reimplementation)</span><span><i style="background:#69717c;height:8px"></i><span id="ext-best-name">SC-VLA</span> (as reported)</span><span><i class="lg-ours" style="height:8px"></i>System 0.5</span></div>
       <p class="cap">Our episodes per cell: 800 (System 0.5: 2,400) on RoboStress, 1,400 (200 per joint) on J-PARC. Under range limits and the lock, where no command can produce part of the motion, System 0.5 matches J-PARC within one point.</p>
     </div>
@@ -516,7 +523,7 @@ footer{padding:40px 0 60px;font-size:13px;color:var(--faint);border-top:1px soli
         <span class="label">08 · Tracking predicts success</span>
         <h2 style="font-size:clamp(26px,2.8vw,40px);margin-top:14px">Lower tracking error, higher success</h2>
         <p style="margin-top:16px">On the eight changes, across six layer variants, pass-through and the four baselines, a lower mean tracking error against the nominal execution comes with higher success in the same episodes.</p>
-        <div class="stage" style="padding:14px 12px 6px"><svg id="scatter" class="chart" viewBox="0 0 560 400" role="img" aria-label="Scatter of tracking error against success for eleven methods"></svg></div>
+        <div class="stage scroll sm" style="padding:14px 12px 6px"><svg id="scatter" class="chart" viewBox="0 0 560 400" role="img" aria-label="Scatter of tracking error against success for eleven methods"></svg></div>
         <p class="cap">Rerun that records the tracking error, 8 changes × 40 episodes per point. Hover or tap a point for its name.</p>
       </div>
     </div>
@@ -535,12 +542,12 @@ footer{padding:40px 0 60px;font-size:13px;color:var(--faint);border-top:1px soli
     <div class="grid-2 top">
       <div class="rv">
         <h3>Tracking error per placement</h3>
-        <div class="stage" style="padding:14px 12px 6px"><svg id="hw-dumb" class="chart" viewBox="0 0 560 520" role="img" aria-label="Tracking error at each of 30 placements for unit gain, the calibrator and System 0.5"></svg></div>
+        <div class="stage scroll sm" style="padding:14px 12px 6px"><svg id="hw-dumb" class="chart" viewBox="0 0 560 520" role="img" aria-label="Tracking error at each of 30 placements for unit gain, the calibrator and System 0.5"></svg></div>
         <p class="cap">Hand distance from the nominal execution, averaged over the chunks in free motion. One-sided paired Wilcoxon test fixed before the experiment, p = 9×10<sup>−10</sup>; against the calibrator, two-sided p = 4×10<sup>−6</sup>.</p>
       </div>
       <div class="rv" style="--d:120ms">
         <h3>Completed trials over time</h3>
-        <div class="stage" style="padding:14px 12px 6px"><svg id="hw-cdf" class="chart" viewBox="0 0 560 520" role="img" aria-label="Cumulative completed trials against time for three methods"></svg></div>
+        <div class="stage scroll sm" style="padding:14px 12px 6px"><svg id="hw-cdf" class="chart" viewBox="0 0 560 520" role="img" aria-label="Cumulative completed trials against time for three methods"></svg></div>
         <p class="cap">Trials completed within each time, of 30 per method; 120 s limit. Within 60 s, unit gain completes none, the calibrator 15 and System 0.5 18. At 120 s: 16, 16 and 21. The operator labeled each trial; all 90 labels match the logged gripper opening in the release region.</p>
       </div>
     </div>
