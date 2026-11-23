@@ -742,11 +742,15 @@ input[type=range]{flex:1;min-width:0;accent-color:#e68670}
 /* bibtex */
 .bib{position:relative;background:var(--night-raised);border:1px solid var(--night-line);border-radius:14px;padding:22px 24px;overflow:auto}
 .bib pre{margin:0;font-family:var(--font-mono);font-size:13px;line-height:1.6;color:var(--night-body)}
-.bib button{position:absolute;right:12px;top:12px}
-.visitor-map{width:calc(100% - 44px);max-width:300px;margin:0 auto;padding:0 0 56px;text-align:center;overflow:hidden;border:0}
-.visitor-map img,.visitor-map iframe,.visitor-map canvas{max-width:100%}
-.ack{margin:16px 0 0;font-size:14px;color:var(--night-muted);max-width:62ch}
-footer{padding:40px 0 60px;font-size:13px;color:var(--faint);border-top:1px solid var(--line)}
+.bib button{position:absolute;right:12px;top:12px;border-color:var(--night-line);color:var(--night-muted)}
+.site-footer{background:var(--night);color:var(--night-muted);border-top:1px solid var(--night-line);padding-block:64px 40px;font-size:14px}
+.site-footer .wrap{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:32px;align-items:start}
+@media(max-width:760px){.site-footer .wrap{grid-template-columns:minmax(0,1fr)}}
+.site-footer h3{margin:0 0 12px;font-family:var(--font-mono);font-size:12px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:#97aecc}
+.site-footer p{max-width:62ch;line-height:1.6;color:var(--night-body);margin:0}
+.site-footer .fine{margin-top:28px;font-family:var(--font-mono);font-size:12px;color:var(--night-muted)}
+.visitor-map{width:260px;max-width:100%;overflow:hidden}
+.visitor-map img,.visitor-map iframe{max-width:100%}
 
 /* reveal */
 @media (prefers-reduced-motion:no-preference){
@@ -1111,7 +1115,7 @@ footer{padding:40px 0 60px;font-size:13px;color:var(--faint);border-top:1px soli
   </div>
 </section>
 
-<section id="bibtex" class="night" style="padding-top:clamp(72px,7vw,110px);padding-bottom:72px">
+<section id="bibtex">
   <div class="wrap">
     <span class="label">Citation</span>
     <h2 style="margin:12px 0 26px;font-size:clamp(26px,2.8vw,40px)">BibTeX</h2>
@@ -1124,19 +1128,17 @@ footer{padding:40px 0 60px;font-size:13px;color:var(--faint);border-top:1px soli
   </div>
 </section>
 
-<section id="acknowledgments" class="night" style="padding-top:0">
+<footer class="site-footer" id="acknowledgments">
   <div class="wrap">
-    <span class="label">Acknowledgments</span>
-    <p class="ack">Coming soon.</p>
+    <div>
+      <h3>Acknowledgments</h3>
+      <p>Coming soon.</p>
+      <p class="fine">System 0.5 · POSTECH DI Lab · 2026</p>
+    </div>
+    <div class="visitor-map" aria-label="Visitor map">
+      <script type="text/javascript" id="mapmyvisitors" src="//mapmyvisitors.com/map.js?d=4lQaJAc9dv2iOdEexgbHM6R4udam78uNUl4o6sh7yNo&cl=ffffff&w=a"></script>
+    </div>
   </div>
-</section>
-
-<footer>
-  <div class="wrap">System 0.5 · POSTECH · Every number and chart on this page is generated from the paper's result files.</div>
-</footer>
-
-<footer class="visitor-map" aria-label="Visitor map">
-  <script type="text/javascript" id="mapmyvisitors" src="//mapmyvisitors.com/map.js?d=4lQaJAc9dv2iOdEexgbHM6R4udam78uNUl4o6sh7yNo&cl=ffffff&w=a"></script>
 </footer>
 
 <div class="lightbox" id="lb" role="dialog" aria-modal="true" aria-label="Clip">
