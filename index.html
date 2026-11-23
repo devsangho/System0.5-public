@@ -99,6 +99,8 @@ section{padding:clamp(84px,9vw,140px) 0;position:relative}
 .wordmark .num{background:var(--signal);-webkit-background-clip:text;background-clip:text;color:transparent;padding-right:.06em}
 .full-title{font-family:var(--font-latin);font-size:clamp(20px,1.9vw,27px);font-weight:600;letter-spacing:-.025em;line-height:1.3;color:var(--ink);max-width:30ch;margin:0}
 .authors{margin-top:26px;font-size:16px;color:var(--ink);font-weight:500}
+.authors sup{font-size:.7em;margin-left:1px;color:var(--coral-deep)}
+.authors .corr-note{margin-top:2px;font-size:13px}
 .authors .affil{display:block;margin-top:4px;font-size:14px;color:var(--muted);font-weight:400}
 .btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}
 .btn{display:inline-flex;align-items:center;gap:10px;min-height:50px;padding:0 22px;border-radius:3px;background:var(--ink);color:#fff;border:0;font-weight:600;font-size:15px;transition:background .25s var(--ease),box-shadow .25s var(--ease)}
@@ -272,11 +274,11 @@ footer{padding:40px 0 60px;font-size:13px;color:var(--faint);border-top:1px soli
       <span class="label h-in" style="--d:50ms">Robotics · VLA execution</span>
       <h1 class="wordmark" aria-label="System 0.5">System&nbsp;<span class="num">0.5</span></h1>
       <p class="full-title h-in" style="--d:700ms">Learning to Restore Nominal VLA Execution Under Unknown Low-Level Changes</p>
-      <p class="authors h-in" style="--d:820ms">Sangho Yun, Hwanjo Yu
-        <span class="affil">POSTECH, Pohang, South Korea</span></p>
+      <p class="authors h-in" style="--d:820ms">Sangho Yun, Minsoo Kim, Hwanjo Yu<sup class="corr" aria-label="corresponding author">*</sup>
+        <span class="affil">POSTECH, Pohang, South Korea</span><span class="affil corr-note"><sup>*</sup>Corresponding author</span></p>
       <div class="btns h-in" style="--d:940ms">
-        <a class="btn" href="static/paper/system05.pdf">Paper (PDF) <span class="ar">↗</span></a>
-        <a class="btn ghost" href="#method">How it works <span class="ar">↓</span></a>
+        <a class="btn" href="#method">How it works <span class="ar">↓</span></a>
+        <span class="btn off">Paper · coming soon</span>
         <span class="btn off">Code · coming soon</span>
       </div>
     </div>
@@ -585,7 +587,7 @@ footer{padding:40px 0 60px;font-size:13px;color:var(--faint);border-top:1px soli
     <div class="bib"><button class="iconbtn" id="copy-bib">copy</button><pre id="bib-text">@article{yun2026system05,
   title  = {System 0.5: Learning to Restore Nominal VLA Execution
             Under Unknown Low-Level Changes},
-  author = {Yun, Sangho and Yu, Hwanjo},
+  author = {Yun, Sangho and Kim, Minsoo and Yu, Hwanjo},
   year   = {2026}
 }</pre></div>
   </div>

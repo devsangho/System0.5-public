@@ -2,10 +2,9 @@
 
 Learning to Restore Nominal VLA Execution Under Unknown Low-Level Changes
 
-Sangho Yun and Hwanjo Yu, POSTECH
+Sangho Yun, Minsoo Kim and Hwanjo Yu (corresponding author), POSTECH
 
-[Project page](https://devsangho.github.io/System0.5-public/) ·
-[Paper PDF](https://devsangho.github.io/System0.5-public/static/paper/system05.pdf)
+[Project page](https://devsangho.github.io/System0.5-public/) · Paper: coming soon
 
 This repository hosts the static project website: interactive motion graphics, result charts and the
 UR5e trial videos. Code and checkpoints will be released upon publication.
