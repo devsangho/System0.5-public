@@ -4,14 +4,488 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>System 0.5: Learning to Restore Nominal VLA Execution Under Unknown Low-Level Changes</title>
-<meta name="description" content="System 0.5 is a learned layer between a frozen vision-language-action policy and the robot's controller. It restores the motion the policy learned, the nominal execution of each chunk, when controllers, gains or joints change.">
+<meta name="description" content="System 0.5 is a learned layer between a frozen VLA policy and the robot controller that restores each action chunk's nominal execution when System 0 changes.">
+<link rel="canonical" href="https://devsangho.github.io/System0.5-public/">
+<meta name="robots" content="index, follow, max-image-preview:large, max-video-preview:-1, max-snippet:-1">
+<meta name="author" content="Sangho Yun, Minsoo Kim, Hwanjo Yu">
+<meta name="keywords" content="System 0.5, vision-language-action, VLA, action chunking, nominal execution, low-level control, controller change, joint faults, robot manipulation, system identification, forward model, pi0.5, LIBERO, RoboStress, J-PARC, UR5e, POSTECH">
 <meta name="theme-color" content="#f4f5f2">
+<link rel="alternate" type="text/markdown" href="llms.txt" title="Plain-text summary for language models">
+
+<!-- Open Graph -->
 <meta property="og:type" content="website">
-<meta property="og:title" content="System 0.5: Restoring Nominal VLA Execution">
+<meta property="og:site_name" content="System 0.5">
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="System 0.5: Learning to Restore Nominal VLA Execution Under Unknown Low-Level Changes">
 <meta property="og:description" content="A learned layer between a frozen VLA and System 0 that restores each chunk's nominal execution. 72.7% vs 56.6% on RoboStress; 9.0 to 1.2 mm tracking error on a real UR5e.">
-<meta property="og:image" content="static/og.png">
+<meta property="og:url" content="https://devsangho.github.io/System0.5-public/">
+<meta property="og:image" content="https://devsangho.github.io/System0.5-public/static/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="System 0.5: Learning to Restore Nominal VLA Execution Under Unknown Low-Level Changes, with headline results">
+
+<!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="System 0.5: Learning to Restore Nominal VLA Execution Under Unknown Low-Level Changes">
+<meta name="twitter:description" content="A learned layer between a frozen VLA and System 0 that restores each chunk's nominal execution. 72.7% vs 56.6% on RoboStress; 9.0 to 1.2 mm on a real UR5e.">
+<meta name="twitter:image" content="https://devsangho.github.io/System0.5-public/static/og.jpg">
+<meta name="twitter:image:alt" content="System 0.5 project page card with headline results">
+
+<!-- Google Scholar -->
+<meta name="citation_title" content="System 0.5: Learning to Restore Nominal VLA Execution Under Unknown Low-Level Changes">
+<meta name="citation_author" content="Yun, Sangho">
+<meta name="citation_author" content="Kim, Minsoo">
+<meta name="citation_author" content="Yu, Hwanjo">
+<meta name="citation_author_institution" content="POSTECH">
+
 <link rel="icon" type="image/svg+xml" href="static/icon.svg">
+<link rel="icon" type="image/png" sizes="192x192" href="static/icon-192.png">
+<link rel="apple-touch-icon" href="static/icon-180.png">
+<link rel="manifest" href="site.webmanifest">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "WebSite",
+   "@id": "https://devsangho.github.io/System0.5-public/#website",
+   "url": "https://devsangho.github.io/System0.5-public/",
+   "name": "System 0.5",
+   "description": "Project page for System 0.5: Learning to Restore Nominal VLA Execution Under Unknown Low-Level Changes.",
+   "inLanguage": "en"
+  },
+  {
+   "@type": "WebPage",
+   "@id": "https://devsangho.github.io/System0.5-public/#webpage",
+   "url": "https://devsangho.github.io/System0.5-public/",
+   "name": "System 0.5: Learning to Restore Nominal VLA Execution Under Unknown Low-Level Changes",
+   "description": "System 0.5 is a learned layer between a frozen VLA policy and the robot controller that restores each action chunk's nominal execution when System 0 changes.",
+   "isPartOf": {
+    "@id": "https://devsangho.github.io/System0.5-public/#website"
+   },
+   "about": {
+    "@id": "https://devsangho.github.io/System0.5-public/#paper"
+   },
+   "primaryImageOfPage": "https://devsangho.github.io/System0.5-public/static/og.jpg",
+   "dateModified": "2026-11-23",
+   "inLanguage": "en"
+  },
+  {
+   "@type": "ScholarlyArticle",
+   "@id": "https://devsangho.github.io/System0.5-public/#paper",
+   "headline": "System 0.5: Learning to Restore Nominal VLA Execution Under Unknown Low-Level Changes",
+   "name": "System 0.5: Learning to Restore Nominal VLA Execution Under Unknown Low-Level Changes",
+   "alternativeHeadline": "System 0.5",
+   "url": "https://devsangho.github.io/System0.5-public/",
+   "mainEntityOfPage": "https://devsangho.github.io/System0.5-public/",
+   "abstract": "A vision-language-action (VLA) policy outputs action chunks that System 0 (the controller and the robot body) turns into motion. System 0 rarely stays as it was when the demonstrations were recorded. Robots run under other controllers and gains, and joint faults can halve the success of pi0.5. A remedy that covers every change is to make the arm follow the command. In LIBERO, however, the demonstrations' System 0 moves the hand about a fifth of each commanded displacement per tick, and the policy learned this motion, not the command. We present System 0.5, a layer between a frozen VLA and System 0. The layer recovers success by learning to restore each chunk's nominal execution, the motion the demonstrations' System 0 would produce from where the chunk starts. The layer identifies the current System 0 from its own history of commands and measured motion. It is trained by gradients through a learned forward model, without reinforcement learning. With pi0.5 on LIBERO, System 0.5 exceeds the best reported success on two joint-fault benchmarks, reaching 72.7% against 56.6% on RoboStress. On average over eight changes outside its training distribution, it outperforms all four baselines. On a real UR5e, a second layer trained with the same losses lowers the tracking error from 9.0 to 1.2 mm at every one of 30 placements and completes 21 of the 30 trials against 16 without a layer.",
+   "keywords": [
+    "System 0.5",
+    "vision-language-action",
+    "VLA",
+    "action chunking",
+    "nominal execution",
+    "low-level control",
+    "controller change",
+    "joint faults",
+    "robot manipulation",
+    "system identification",
+    "forward model",
+    "pi0.5",
+    "LIBERO",
+    "RoboStress",
+    "J-PARC",
+    "UR5e",
+    "POSTECH"
+   ],
+   "author": [
+    {
+     "@type": "Person",
+     "name": "Sangho Yun",
+     "affiliation": {
+      "@type": "Organization",
+      "name": "POSTECH",
+      "url": "https://www.postech.ac.kr"
+     },
+     "url": "https://www.devsangho.com"
+    },
+    {
+     "@type": "Person",
+     "name": "Minsoo Kim",
+     "affiliation": {
+      "@type": "Organization",
+      "name": "POSTECH",
+      "url": "https://www.postech.ac.kr"
+     }
+    },
+    {
+     "@type": "Person",
+     "name": "Hwanjo Yu",
+     "affiliation": {
+      "@type": "Organization",
+      "name": "POSTECH",
+      "url": "https://www.postech.ac.kr"
+     }
+    }
+   ],
+   "inLanguage": "en",
+   "image": "https://devsangho.github.io/System0.5-public/static/og.jpg",
+   "about": [
+    {
+     "@type": "DefinedTerm",
+     "name": "nominal execution",
+     "description": "The nominal execution is the trajectory that the nominal System 0, the one under which the demonstrations were recorded, would produce from the state where the chunk actually starts. It restarts from the actual state at every chunk, so the error one chunk leaves is not carried into the next."
+    },
+    {
+     "@type": "DefinedTerm",
+     "name": "System 0",
+     "description": "The controller and the robot body that turn a policy's action chunks into motion."
+    }
+   ]
+  },
+  {
+   "@type": "FAQPage",
+   "@id": "https://devsangho.github.io/System0.5-public/#faq",
+   "mainEntity": [
+    {
+     "@type": "Question",
+     "name": "What is System 0.5?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "System 0.5 is a learned layer between a frozen vision-language-action (VLA) policy and System 0, the controller and the robot body. Once per 50 ms tick it corrects the arm part of each command so that every action chunk moves the arm as it would under the System 0 that recorded the policy's demonstrations."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What is the nominal execution of a chunk?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "The nominal execution is the trajectory that the nominal System 0, the one under which the demonstrations were recorded, would produce from the state where the chunk actually starts. It restarts from the actual state at every chunk, so the error one chunk leaves is not carried into the next."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Why not make the arm follow the command?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Under LIBERO's own controller the hand moves about 0.22 of each commanded step per tick, and the policy learned this partial motion. Trained toward the command instead of the nominal execution, the same layer succeeds in 25.6% of episodes under changes outside its training distribution, against 76.9% for the policy without a layer."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Does System 0.5 retrain the VLA or need the parameters of System 0?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "No. The VLA stays frozen, and the layer never receives the parameters of System 0. It identifies the current System 0 from its own history of commands and measured motion, using recursive least-squares statistics and an encoder that summarizes them as a 64-dimensional vector."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "How is System 0.5 trained?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "In simulation, by gradients through a learned forward model and without reinforcement learning. Training copies the simulator state at each chunk's start to record the nominal execution, and the forward model's sensitivity turns other commands into the change of motion they would cause. Training replays recorded pi0.5 chunks and never queries the VLA. At deployment one tick takes about 1 ms on one CPU thread."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What results does System 0.5 achieve?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "With pi0.5 on LIBERO, System 0.5 reaches 72.7% success on RoboStress against 56.6% best reported, and 68.1% on the J-PARC joint-fault benchmark against 61.7%. Over eight System 0 changes outside its training distribution it reaches 84.7%, above all four baselines (best 79.4%). On a real UR5e it lowers the tracking error from 9.0 to 1.2 mm at every one of 30 placements and completes 21 of 30 trials against 16 without a layer."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Are the code and paper available?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "The paper and code are coming soon. This page shows the method, the results and all 90 UR5e hardware trials."
+     }
+    }
+   ]
+  },
+  {
+   "@type": "ItemList",
+   "@id": "https://devsangho.github.io/System0.5-public/#ur5e-videos",
+   "name": "UR5e hardware trials: unit gain, online gain calibrator and System 0.5 at 30 placements",
+   "numberOfItems": 30,
+   "itemListElement": [
+    {
+     "@type": "VideoObject",
+     "position": 1,
+     "name": "UR5e placement 1: unit gain, calibrator and System 0.5 side by side",
+     "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock.",
+     "contentUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-001.mp4",
+     "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-001.jpg",
+     "uploadDate": "2026-11-23"
+    },
+    {
+     "@type": "VideoObject",
+     "position": 2,
+     "name": "UR5e placement 2: unit gain, calibrator and System 0.5 side by side",
+     "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock.",
+     "contentUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-002.mp4",
+     "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-002.jpg",
+     "uploadDate": "2026-11-23"
+    },
+    {
+     "@type": "VideoObject",
+     "position": 3,
+     "name": "UR5e placement 3: unit gain, calibrator and System 0.5 side by side",
+     "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock.",
+     "contentUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-003.mp4",
+     "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-003.jpg",
+     "uploadDate": "2026-11-23"
+    },
+    {
+     "@type": "VideoObject",
+     "position": 4,
+     "name": "UR5e placement 4: unit gain, calibrator and System 0.5 side by side",
+     "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock.",
+     "contentUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-004.mp4",
+     "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-004.jpg",
+     "uploadDate": "2026-11-23"
+    },
+    {
+     "@type": "VideoObject",
+     "position": 5,
+     "name": "UR5e placement 5: unit gain, calibrator and System 0.5 side by side",
+     "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock.",
+     "contentUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-005.mp4",
+     "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-005.jpg",
+     "uploadDate": "2026-11-23"
+    },
+    {
+     "@type": "VideoObject",
+     "position": 6,
+     "name": "UR5e placement 6: unit gain, calibrator and System 0.5 side by side",
+     "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock.",
+     "contentUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-006.mp4",
+     "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-006.jpg",
+     "uploadDate": "2026-11-23"
+    },
+    {
+     "@type": "VideoObject",
+     "position": 7,
+     "name": "UR5e placement 7: unit gain, calibrator and System 0.5 side by side",
+     "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock.",
+     "contentUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-007.mp4",
+     "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-007.jpg",
+     "uploadDate": "2026-11-23"
+    },
+    {
+     "@type": "VideoObject",
+     "position": 8,
+     "name": "UR5e placement 8: unit gain, calibrator and System 0.5 side by side",
+     "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock.",
+     "contentUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-008.mp4",
+     "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-008.jpg",
+     "uploadDate": "2026-11-23"
+    },
+    {
+     "@type": "VideoObject",
+     "position": 9,
+     "name": "UR5e placement 9: unit gain, calibrator and System 0.5 side by side",
+     "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock.",
+     "contentUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-009.mp4",
+     "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-009.jpg",
+     "uploadDate": "2026-11-23"
+    },
+    {
+     "@type": "VideoObject",
+     "position": 10,
+     "name": "UR5e placement 10: unit gain, calibrator and System 0.5 side by side",
+     "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock.",
+     "contentUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-010.mp4",
+     "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-010.jpg",
+     "uploadDate": "2026-11-23"
+    },
+    {
+     "@type": "VideoObject",
+     "position": 11,
+     "name": "UR5e placement 11: unit gain, calibrator and System 0.5 side by side",
+     "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock.",
+     "contentUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-011.mp4",
+     "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-011.jpg",
+     "uploadDate": "2026-11-23"
+    },
+    {
+     "@type": "VideoObject",
+     "position": 12,
+     "name": "UR5e placement 12: unit gain, calibrator and System 0.5 side by side",
+     "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock.",
+     "contentUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-012.mp4",
+     "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-012.jpg",
+     "uploadDate": "2026-11-23"
+    },
+    {
+     "@type": "VideoObject",
+     "position": 13,
+     "name": "UR5e placement 13: unit gain, calibrator and System 0.5 side by side",
+     "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock.",
+     "contentUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-013.mp4",
+     "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-013.jpg",
+     "uploadDate": "2026-11-23"
+    },
+    {
+     "@type": "VideoObject",
+     "position": 14,
+     "name": "UR5e placement 14: unit gain, calibrator and System 0.5 side by side",
+     "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock.",
+     "contentUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-014.mp4",
+     "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-014.jpg",
+     "uploadDate": "2026-11-23"
+    },
+    {
+     "@type": "VideoObject",
+     "position": 15,
+     "name": "UR5e placement 15: unit gain, calibrator and System 0.5 side by side",
+     "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock.",
+     "contentUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-015.mp4",
+     "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-015.jpg",
+     "uploadDate": "2026-11-23"
+    },
+    {
+     "@type": "VideoObject",
+     "position": 16,
+     "name": "UR5e placement 16: unit gain, calibrator and System 0.5 side by side",
+     "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock.",
+     "contentUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-016.mp4",
+     "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-016.jpg",
+     "uploadDate": "2026-11-23"
+    },
+    {
+     "@type": "VideoObject",
+     "position": 17,
+     "name": "UR5e placement 17: unit gain, calibrator and System 0.5 side by side",
+     "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock.",
+     "contentUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-017.mp4",
+     "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-017.jpg",
+     "uploadDate": "2026-11-23"
+    },
+    {
+     "@type": "VideoObject",
+     "position": 18,
+     "name": "UR5e placement 18: unit gain, calibrator and System 0.5 side by side",
+     "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock.",
+     "contentUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-018.mp4",
+     "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-018.jpg",
+     "uploadDate": "2026-11-23"
+    },
+    {
+     "@type": "VideoObject",
+     "position": 19,
+     "name": "UR5e placement 19: unit gain, calibrator and System 0.5 side by side",
+     "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock.",
+     "contentUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-019.mp4",
+     "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-019.jpg",
+     "uploadDate": "2026-11-23"
+    },
+    {
+     "@type": "VideoObject",
+     "position": 20,
+     "name": "UR5e placement 20: unit gain, calibrator and System 0.5 side by side",
+     "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock.",
+     "contentUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-020.mp4",
+     "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-020.jpg",
+     "uploadDate": "2026-11-23"
+    },
+    {
+     "@type": "VideoObject",
+     "position": 21,
+     "name": "UR5e placement 21: unit gain, calibrator and System 0.5 side by side",
+     "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock.",
+     "contentUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-021.mp4",
+     "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-021.jpg",
+     "uploadDate": "2026-11-23"
+    },
+    {
+     "@type": "VideoObject",
+     "position": 22,
+     "name": "UR5e placement 22: unit gain, calibrator and System 0.5 side by side",
+     "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock.",
+     "contentUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-022.mp4",
+     "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-022.jpg",
+     "uploadDate": "2026-11-23"
+    },
+    {
+     "@type": "VideoObject",
+     "position": 23,
+     "name": "UR5e placement 23: unit gain, calibrator and System 0.5 side by side",
+     "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock.",
+     "contentUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-023.mp4",
+     "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-023.jpg",
+     "uploadDate": "2026-11-23"
+    },
+    {
+     "@type": "VideoObject",
+     "position": 24,
+     "name": "UR5e placement 24: unit gain, calibrator and System 0.5 side by side",
+     "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock.",
+     "contentUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-024.mp4",
+     "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-024.jpg",
+     "uploadDate": "2026-11-23"
+    },
+    {
+     "@type": "VideoObject",
+     "position": 25,
+     "name": "UR5e placement 25: unit gain, calibrator and System 0.5 side by side",
+     "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock.",
+     "contentUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-025.mp4",
+     "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-025.jpg",
+     "uploadDate": "2026-11-23"
+    },
+    {
+     "@type": "VideoObject",
+     "position": 26,
+     "name": "UR5e placement 26: unit gain, calibrator and System 0.5 side by side",
+     "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock.",
+     "contentUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-026.mp4",
+     "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-026.jpg",
+     "uploadDate": "2026-11-23"
+    },
+    {
+     "@type": "VideoObject",
+     "position": 27,
+     "name": "UR5e placement 27: unit gain, calibrator and System 0.5 side by side",
+     "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock.",
+     "contentUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-027.mp4",
+     "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-027.jpg",
+     "uploadDate": "2026-11-23"
+    },
+    {
+     "@type": "VideoObject",
+     "position": 28,
+     "name": "UR5e placement 28: unit gain, calibrator and System 0.5 side by side",
+     "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock.",
+     "contentUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-028.mp4",
+     "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-028.jpg",
+     "uploadDate": "2026-11-23"
+    },
+    {
+     "@type": "VideoObject",
+     "position": 29,
+     "name": "UR5e placement 29: unit gain, calibrator and System 0.5 side by side",
+     "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock.",
+     "contentUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-029.mp4",
+     "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-029.jpg",
+     "uploadDate": "2026-11-23"
+    },
+    {
+     "@type": "VideoObject",
+     "position": 30,
+     "name": "UR5e placement 30: unit gain, calibrator and System 0.5 side by side",
+     "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock.",
+     "contentUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-030.mp4",
+     "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/ur5e/pair-030.jpg",
+     "uploadDate": "2026-11-23"
+    }
+   ]
+  }
+ ]
+}
+</script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -97,6 +571,13 @@ section{padding:clamp(84px,9vw,140px) 0;position:relative}
 @media(max-width:980px){.hero .wrap{grid-template-columns:1fr}}
 .wordmark{font-family:var(--font-latin);font-size:clamp(70px,10vw,158px);font-weight:400;letter-spacing:-.078em;line-height:.86;color:var(--ink);margin:22px 0 26px;white-space:nowrap}
 .wordmark .num{background:var(--signal);-webkit-background-clip:text;background-clip:text;color:transparent;padding-right:.06em}
+.hero-h1{margin:0;font:inherit}
+.hero-h1 .wordmark,.hero-h1 .full-title{display:block}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.faq{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:36px}
+@media(max-width:900px){.faq{grid-template-columns:1fr}}
+.faq .card h3{font-size:clamp(17px,1.3vw,20px);margin-bottom:8px}
+.faq .card p{margin:0;font-size:15px}
 .full-title{font-family:var(--font-latin);font-size:clamp(20px,1.9vw,27px);font-weight:600;letter-spacing:-.025em;line-height:1.3;color:var(--ink);max-width:30ch;margin:0}
 .authors{margin-top:26px;font-size:16px;color:var(--ink);font-weight:500}
 .authors sup{font-size:.7em;margin-left:1px;color:var(--coral-deep)}
@@ -263,6 +744,7 @@ footer{padding:40px 0 60px;font-size:13px;color:var(--faint);border-top:1px soli
       <li><a href="#method">Method</a></li>
       <li><a href="#results">Results</a></li>
       <li><a href="#ur5e">UR5e</a></li>
+      <li><a href="#faq">FAQ</a></li>
       <li><a href="#bibtex">BibTeX</a></li>
     </ul>
   </div>
@@ -274,8 +756,7 @@ footer{padding:40px 0 60px;font-size:13px;color:var(--faint);border-top:1px soli
   <div class="wrap">
     <div>
       <span class="label h-in" style="--d:50ms">Robotics · VLA execution</span>
-      <h1 class="wordmark" aria-label="System 0.5">System&nbsp;<span class="num">0.5</span></h1>
-      <p class="full-title h-in" style="--d:700ms">Learning to Restore Nominal VLA Execution Under Unknown Low-Level Changes</p>
+      <h1 class="hero-h1" aria-label="System 0.5: Learning to Restore Nominal VLA Execution Under Unknown Low-Level Changes"><span class="wordmark" aria-hidden="true">System&nbsp;<span class="num">0.5</span></span><span class="sr">: </span><span class="full-title h-in" style="--d:700ms">Learning to Restore Nominal VLA Execution Under Unknown Low-Level Changes</span></h1>
       <p class="authors h-in" style="--d:820ms">Sangho Yun, Minsoo Kim, Hwanjo Yu<sup class="corr" aria-label="corresponding author">*</sup>
         <span class="affil">POSTECH, Pohang, South Korea</span><span class="affil corr-note"><sup>*</sup>Corresponding author</span></p>
       <div class="btns h-in" style="--d:940ms">
@@ -568,6 +1049,23 @@ footer{padding:40px 0 60px;font-size:13px;color:var(--faint);border-top:1px soli
       </div>
       <div class="wall collapsed" id="wall"></div>
       <div style="display:flex;justify-content:center;margin-top:16px"><button class="iconbtn" id="wall-more">show all clips ↓</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section id="faq">
+  <div class="wrap">
+    <span class="label rv">Questions</span>
+    <h2 class="rv" style="--d:80ms">System 0.5 at a glance</h2>
+    <div class="faq">
+      <div class="card rv" style="--d:0ms"><h3>What is System 0.5?</h3><p>System 0.5 is a learned layer between a frozen vision-language-action (VLA) policy and System 0, the controller and the robot body. Once per 50 ms tick it corrects the arm part of each command so that every action chunk moves the arm as it would under the System 0 that recorded the policy's demonstrations.</p></div>
+      <div class="card rv" style="--d:100ms"><h3>What is the nominal execution of a chunk?</h3><p>The nominal execution is the trajectory that the nominal System 0, the one under which the demonstrations were recorded, would produce from the state where the chunk actually starts. It restarts from the actual state at every chunk, so the error one chunk leaves is not carried into the next.</p></div>
+      <div class="card rv" style="--d:0ms"><h3>Why not make the arm follow the command?</h3><p>Under LIBERO's own controller the hand moves about 0.22 of each commanded step per tick, and the policy learned this partial motion. Trained toward the command instead of the nominal execution, the same layer succeeds in 25.6% of episodes under changes outside its training distribution, against 76.9% for the policy without a layer.</p></div>
+      <div class="card rv" style="--d:100ms"><h3>Does System 0.5 retrain the VLA or need the parameters of System 0?</h3><p>No. The VLA stays frozen, and the layer never receives the parameters of System 0. It identifies the current System 0 from its own history of commands and measured motion, using recursive least-squares statistics and an encoder that summarizes them as a 64-dimensional vector.</p></div>
+      <div class="card rv" style="--d:0ms"><h3>How is System 0.5 trained?</h3><p>In simulation, by gradients through a learned forward model and without reinforcement learning. Training copies the simulator state at each chunk's start to record the nominal execution, and the forward model's sensitivity turns other commands into the change of motion they would cause. Training replays recorded π<sub>0.5</sub> chunks and never queries the VLA. At deployment one tick takes about 1 ms on one CPU thread.</p></div>
+      <div class="card rv" style="--d:100ms"><h3>What results does System 0.5 achieve?</h3><p>With π<sub>0.5</sub> on LIBERO, System 0.5 reaches 72.7% success on RoboStress against 56.6% best reported, and 68.1% on the J-PARC joint-fault benchmark against 61.7%. Over eight System 0 changes outside its training distribution it reaches 84.7%, above all four baselines (best 79.4%). On a real UR5e it lowers the tracking error from 9.0 to 1.2 mm at every one of 30 placements and completes 21 of 30 trials against 16 without a layer.</p></div>
+      <div class="card rv" style="--d:0ms"><h3>Are the code and paper available?</h3><p>The paper and code are coming soon. This page shows the method, the results and all 90 UR5e hardware trials.</p></div>
     </div>
   </div>
 </section>
