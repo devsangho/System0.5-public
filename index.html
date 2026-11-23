@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head>
+<head prefix="og: https://ogp.me/ns# article: https://ogp.me/ns/article#">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>System 0.5: Learning to Restore Nominal VLA Execution Under Unknown Low-Level Changes</title>
@@ -13,16 +13,46 @@
 <link rel="alternate" type="text/markdown" href="llms.txt" title="Plain-text summary for language models">
 
 <!-- Open Graph -->
-<meta property="og:type" content="website">
+<meta property="og:type" content="article">
 <meta property="og:site_name" content="System 0.5">
 <meta property="og:locale" content="en_US">
 <meta property="og:title" content="System 0.5: Learning to Restore Nominal VLA Execution Under Unknown Low-Level Changes">
 <meta property="og:description" content="A learned layer between a frozen VLA and System 0 that restores each chunk's nominal execution. 72.7% vs 56.6% on RoboStress; 9.0 to 1.2 mm tracking error on a real UR5e.">
 <meta property="og:url" content="https://devsangho.github.io/System0.5-public/">
+<meta property="og:updated_time" content="2026-11-23T12:30:00+09:00">
 <meta property="og:image" content="https://devsangho.github.io/System0.5-public/static/og.jpg">
+<meta property="og:image:secure_url" content="https://devsangho.github.io/System0.5-public/static/og.jpg">
+<meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="System 0.5: Learning to Restore Nominal VLA Execution Under Unknown Low-Level Changes, with headline results">
+<meta property="og:image" content="https://devsangho.github.io/System0.5-public/static/fig_method.png">
+<meta property="og:image:secure_url" content="https://devsangho.github.io/System0.5-public/static/fig_method.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1540">
+<meta property="og:image:height" content="590">
+<meta property="og:image:alt" content="Overview of System 0.5: (a) deployment, where the encoder summarizes the history as z and the action head corrects the chunk; (b) training in simulation through the sensitivity J of a frozen forward model">
+<meta property="og:video" content="https://devsangho.github.io/System0.5-public/static/ur5e/pair-001.mp4">
+<meta property="og:video:secure_url" content="https://devsangho.github.io/System0.5-public/static/ur5e/pair-001.mp4">
+<meta property="og:video:type" content="video/mp4">
+<meta property="og:video:width" content="964">
+<meta property="og:video:height" content="270">
+<meta property="og:video:alt" content="Real UR5e, one placement: unit gain, online gain calibrator and System 0.5 side by side at 4x real time">
+<meta property="article:published_time" content="2026-11-23T11:00:00+09:00">
+<meta property="article:modified_time" content="2026-11-23T12:30:00+09:00">
+<meta property="article:author" content="Sangho Yun">
+<meta property="article:author" content="Minsoo Kim">
+<meta property="article:author" content="Hwanjo Yu">
+<meta property="article:section" content="Robotics">
+<meta property="article:tag" content="vision-language-action">
+<meta property="article:tag" content="VLA">
+<meta property="article:tag" content="action chunking">
+<meta property="article:tag" content="nominal execution">
+<meta property="article:tag" content="low-level control">
+<meta property="article:tag" content="robot manipulation">
+<meta property="article:tag" content="system identification">
+<meta property="article:tag" content="LIBERO">
+<meta property="article:tag" content="UR5e">
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
