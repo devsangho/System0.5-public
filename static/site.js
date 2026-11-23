@@ -85,9 +85,17 @@ const ro = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting
 $$(".rv, .stat").forEach(el => ro.observe(el));
 const wm = $(".wordmark");
 if (wm && !RM) { wm.innerHTML = [..."System"].map((x, i) => `<span class="ch" style="--i:${i}">${x}</span>`).join("") + ' <span class="num ch" style="--i:7">0.5</span>'; }
-const nav = $("#nav"), hero = $("#top");
-new IntersectionObserver(es => nav.classList.toggle("show", !es[0].isIntersecting), {threshold: .15}).observe(hero);
-const navLinks = $$(".nav ul a");
+const navLinks = $$(".site-nav a");
+// stat band backdrop: the UR5e placement clips as a muted footage mosaic (as on the GROOVE page)
+(() => {
+  const box = $("#mosaic"); if (!box || !CLIPS.length) return;
+  const io = new IntersectionObserver(es => es.forEach(e => { const v = e.target; if (e.isIntersecting) { if (!v.src) v.src = v.dataset.src; v.play().catch(() => {}); } else v.pause(); }), {rootMargin: "200px"});
+  for (let i = 0; i < 48; i++) {
+    const c = CLIPS[(i * 7) % CLIPS.length], v = document.createElement("video");
+    v.muted = true; v.loop = true; v.playsInline = true; v.preload = "none"; v.dataset.src = c.video; v.poster = c.poster;
+    box.appendChild(v); if (!RM) io.observe(v);
+  }
+})();
 const navIO = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) navLinks.forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id)); }), {rootMargin: "-45% 0px -50% 0px"});
 $$("section[id]").forEach(s => navIO.observe(s));
 $$("[data-count]").forEach(el => onReveal(el.closest(".stat"), () => {
