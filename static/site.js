@@ -84,7 +84,7 @@ function at(pts, u) { const n = clamp(Math.floor(u), 0, pts.length - 1), m = Mat
 const ro = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); ro.unobserve(e.target); } }), {threshold: .12, rootMargin: "0px 0px -6% 0px"});
 $$(".rv, .stat").forEach(el => ro.observe(el));
 const wm = $(".wordmark");
-if (wm && !RM) { wm.innerHTML = [..."System"].map((x, i) => `<span class="ch" style="--i:${i}">${x}</span>`).join("") + ' <span class="num ch" style="--i:7">0.5</span>'; }
+if (wm && !RM) { wm.innerHTML = [..."System"].map((x, i) => `<span class="ch" style="--i:${i}">${x}</span>`).join("") + ' <span class="num num-in">0.5</span>'; }  // gradient text: opacity only (clip-path/transform/filter on background-clip:text renders doubled in Safari)
 const navLinks = $$(".site-nav a");
 // stat band backdrop: the UR5e placement clips as a muted footage mosaic (as on the GROOVE page)
 (() => {
