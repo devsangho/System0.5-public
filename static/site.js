@@ -93,7 +93,9 @@ if (wm && !RM) { wm.innerHTML = [..."System"].map((x, i) => `<span class="ch" st
     let fs = parseFloat(getComputedStyle(el).fontSize);
     for (let k = 0; k < 40 && el.scrollWidth > avail + 1 && fs > 36; k++) { fs *= .97; el.style.fontSize = fs + "px"; }
   };
-  fit(); document.fonts && document.fonts.ready.then(fit); addEventListener("load", fit); new ResizeObserver(fit).observe(el.parentElement);
+  let lastW = -1;  // refit on width changes only; the font size itself changes the column's height
+  const onResize = es => { const w = Math.round(es[0].contentRect.width); if (w !== lastW) { lastW = w; requestAnimationFrame(fit); } };
+  fit(); document.fonts && document.fonts.ready.then(fit); addEventListener("load", fit); new ResizeObserver(onResize).observe(el.parentElement);
 })();
 const navLinks = $$(".site-nav a");
 // stat band backdrop: the UR5e placement clips as a muted footage mosaic (as on the GROOVE page)
