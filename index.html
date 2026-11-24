@@ -784,6 +784,9 @@ sup{font-size:.62em;line-height:0}
 .site-nav .nav-cta{color:#fff;background:var(--ink);padding:8px 14px;border-radius:3px;font-size:13px;font-weight:500}
 .site-nav .nav-cta.off{color:var(--faint);background:transparent;border:1px dashed var(--line-strong);cursor:not-allowed}
 @media(max-width:860px){.site-nav a:not(.nav-cta){display:none}}
+.logo,.logo small,.site-nav .nav-cta{white-space:nowrap}
+@media(max-width:480px){.site-nav .nav-cta.off{display:none}}
+@media(max-width:360px){.logo{gap:8px;font-size:16px}.logo small{font-size:10px;letter-spacing:.03em}}
 /* hero */
 .hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line);min-height:0;display:block;padding:0;
   background:radial-gradient(ellipse 52% 46% at 64% 8%,rgba(151,174,204,.34),transparent 70%),radial-gradient(ellipse 46% 36% at 18% 98%,rgba(247,216,202,.62),transparent 72%),linear-gradient(132deg,#f6f6f2 18%,#edf2f6 58%,#f6eee9 100%)}
@@ -910,7 +913,7 @@ section.night::before{content:"";position:absolute;inset:0;pointer-events:none;b
 
 <header class="site-header">
   <div class="wrap">
-    <a class="logo" href="#top" aria-label="System 0.5, back to top"><img src="static/icon.svg" alt="" width="26" height="26">System 0.5 <small>Project page</small></a>
+    <a class="logo" href="#top" aria-label="System 0.5, back to top"><img src="static/icon.svg" alt="" width="26" height="26">System 0.5 <small>RSS 2027 · under review</small></a>
     <nav class="site-nav" aria-label="Sections">
       <a href="#problem">Problem</a>
       <a href="#method">Method</a>
