@@ -34,7 +34,8 @@ function stage(cv, aspect, draw, opts = {}) {
   function loop(ts) { const dt = last ? Math.min(.05, (ts - last) / 1000) : 0; last = ts; st.t += dt; frame(dt); raf = vis && st.running ? requestAnimationFrame(loop) : 0; }
   st.kick = () => { if (!raf && vis && st.running) { last = 0; raf = requestAnimationFrame(loop); } else if (!st.running) frame(0); };
   st.redraw = () => frame(0);
-  new ResizeObserver(size).observe(cv);
+  let lastW = -1;  // resize only when the width changes; setting the height must not re-trigger the observer
+  new ResizeObserver(es => { const nw = Math.round(es[0].contentRect.width); if (nw !== lastW) { lastW = nw; requestAnimationFrame(size); } }).observe(cv);
   new IntersectionObserver(es => { vis = es[0].isIntersecting; if (vis) st.kick(); }, {rootMargin: "80px"}).observe(cv);
   size(); return st;
 }
