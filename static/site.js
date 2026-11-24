@@ -85,6 +85,16 @@ const ro = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting
 $$(".rv, .stat").forEach(el => ro.observe(el));
 const wm = $(".wordmark");
 if (wm && !RM) { wm.innerHTML = [..."System"].map((x, i) => `<span class="ch" style="--i:${i}">${x}</span>`).join("") + ' <span class="num num-in">0.5</span>'; }  // gradient text: opacity only (clip-path/transform/filter on background-clip:text renders doubled in Safari)
+// hero title never wider than its column, whatever font the browser ends up using
+(() => {
+  const el = $(".brand-hero"); if (!el) return;
+  const fit = () => {
+    el.style.fontSize = ""; const avail = el.parentElement.getBoundingClientRect().width;
+    let fs = parseFloat(getComputedStyle(el).fontSize);
+    for (let k = 0; k < 40 && el.scrollWidth > avail + 1 && fs > 36; k++) { fs *= .97; el.style.fontSize = fs + "px"; }
+  };
+  fit(); document.fonts && document.fonts.ready.then(fit); addEventListener("load", fit); new ResizeObserver(fit).observe(el.parentElement);
+})();
 const navLinks = $$(".site-nav a");
 // stat band backdrop: the UR5e placement clips as a muted footage mosaic (as on the GROOVE page)
 (() => {
