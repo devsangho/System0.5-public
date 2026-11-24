@@ -2,7 +2,7 @@
 
 > System 0.5: Learning to Restore Nominal VLA Execution Under Unknown Low-Level Changes. Sangho Yun, Minsoo Kim and Hwanjo Yu (corresponding author), POSTECH. Project page: https://devsangho.github.io/System0.5-public/
 
-System 0.5 is a learned layer between a frozen vision-language-action (VLA) policy and System 0 (the controller and the robot body). It restores each action chunk's nominal execution: the motion that the System 0 under which the policy's demonstrations were recorded would produce from the state where the chunk starts. It identifies the current System 0 from its own history of commands and measured motion and is trained by gradients through a learned forward model, without reinforcement learning. Paper and code: coming soon.
+System 0.5 is a learned layer between a frozen vision-language-action (VLA) policy and System 0 (the controller and the robot body). It restores each action chunk's nominal execution: the motion that the System 0 under which the policy's demonstrations were recorded would produce from the state where the chunk starts. It identifies the current System 0 from its own history of commands and measured motion and is trained by gradients through a learned forward model, without reinforcement learning. Status: RSS 2027, under review; code will be released upon publication.
 
 ## Key results
 - RoboStress joint faults (pi0.5, LIBERO): 72.7% success vs 56.6% best reported (SC-VLA); our pi0.5 base 51.8%.
@@ -31,8 +31,11 @@ In simulation, by gradients through a learned forward model and without reinforc
 ### What results does System 0.5 achieve?
 With pi0.5 on LIBERO, System 0.5 reaches 72.7% success on RoboStress against 56.6% best reported, and 68.1% on the J-PARC joint-fault benchmark against 61.7%. Over eight System 0 changes outside its training distribution it reaches 84.7%, above all four baselines (best 79.4%). On a real UR5e it lowers the tracking error from 9.0 to 1.2 mm at every one of 30 placements and completes 21 of 30 trials against 16 without a layer.
 
-### Are the code and paper available?
-The paper and code are coming soon. This page shows the method, the results and all 90 UR5e hardware trials.
+### What are the limits of System 0.5?
+The layer assumes that its own measurements are not delayed; on the UR5e, whose measurements are late, the second layer is trained with the measurement lag varied. On the UR5e it lowers the tracking error at every one of 30 placements and completes 21 of 30 trials against 16 without a layer (one-sided sign test p = 0.063); the change on that arm shortens every step without changing its direction, so its measured cost is time. Under joint range limits and a joint lock, where no command can produce part of the motion, System 0.5 matches J-PARC within one point.
+
+### Are the paper and code available?
+The paper is under review and the code will be released upon publication. This page shows the method, the results and all 90 UR5e hardware trials.
 
 ## Abstract
 A vision-language-action (VLA) policy outputs action chunks that System 0 (the controller and the robot body) turns into motion. System 0 rarely stays as it was when the demonstrations were recorded. Robots run under other controllers and gains, and joint faults can halve the success of pi0.5. A remedy that covers every change is to make the arm follow the command. In LIBERO, however, the demonstrations' System 0 moves the hand about a fifth of each commanded displacement per tick, and the policy learned this motion, not the command. We present System 0.5, a layer between a frozen VLA and System 0. The layer recovers success by learning to restore each chunk's nominal execution, the motion the demonstrations' System 0 would produce from where the chunk starts. The layer identifies the current System 0 from its own history of commands and measured motion. It is trained by gradients through a learned forward model, without reinforcement learning. With pi0.5 on LIBERO, System 0.5 exceeds the best reported success on two joint-fault benchmarks, reaching 72.7% against 56.6% on RoboStress. On average over eight changes outside its training distribution, it outperforms all four baselines. On a real UR5e, a second layer trained with the same losses lowers the tracking error from 9.0 to 1.2 mm at every one of 30 placements and completes 21 of the 30 trials against 16 without a layer.

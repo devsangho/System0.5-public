@@ -67,6 +67,8 @@
 <meta name="citation_author" content="Kim, Minsoo">
 <meta name="citation_author" content="Yu, Hwanjo">
 <meta name="citation_author_institution" content="POSTECH">
+<meta name="citation_publication_date" content="2026/11/23">
+<meta name="citation_keywords" content="vision-language-action; VLA; action chunking; nominal execution; low-level control; controller change; joint faults; system identification; forward model; robot manipulation; pi0.5; LIBERO; UR5e">
 
 <link rel="icon" type="image/svg+xml" href="static/icon.svg">
 <link rel="icon" type="image/png" sizes="192x192" href="static/icon-192.png">
@@ -171,7 +173,9 @@
      "name": "System 0",
      "description": "The controller and the robot body that turn a policy's action chunks into motion."
     }
-   ]
+   ],
+   "creativeWorkStatus": "Under review",
+   "datePublished": "2026-11-23"
   },
   {
    "@type": "FAQPage",
@@ -227,10 +231,18 @@
     },
     {
      "@type": "Question",
-     "name": "Are the code and paper available?",
+     "name": "What are the limits of System 0.5?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "The paper and code are coming soon. This page shows the method, the results and all 90 UR5e hardware trials."
+      "text": "The layer assumes that its own measurements are not delayed; on the UR5e, whose measurements are late, the second layer is trained with the measurement lag varied. On the UR5e it lowers the tracking error at every one of 30 placements and completes 21 of 30 trials against 16 without a layer (one-sided sign test p = 0.063); the change on that arm shortens every step without changing its direction, so its measured cost is time. Under joint range limits and a joint lock, where no command can produce part of the motion, System 0.5 matches J-PARC within one point."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Are the paper and code available?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "The paper is under review and the code will be released upon publication. This page shows the method, the results and all 90 UR5e hardware trials."
      }
     }
    ]
@@ -785,8 +797,6 @@ sup{font-size:.62em;line-height:0}
 .site-nav .nav-cta.off{color:var(--faint);background:transparent;border:1px dashed var(--line-strong);cursor:not-allowed}
 @media(max-width:860px){.site-nav a:not(.nav-cta){display:none}}
 .logo,.logo small,.site-nav .nav-cta{white-space:nowrap}
-@media(max-width:480px){.site-nav .nav-cta.off{display:none}}
-@media(max-width:360px){.logo{gap:8px;font-size:16px}.logo small{font-size:10px;letter-spacing:.03em}}
 /* hero */
 .hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line);min-height:0;display:block;padding:0;
   background:radial-gradient(ellipse 52% 46% at 64% 8%,rgba(151,174,204,.34),transparent 70%),radial-gradient(ellipse 46% 36% at 18% 98%,rgba(247,216,202,.62),transparent 72%),linear-gradient(132deg,#f6f6f2 18%,#edf2f6 58%,#f6eee9 100%)}
@@ -907,6 +917,42 @@ section.night::before{content:"";position:absolute;inset:0;pointer-events:none;b
 .site-footer h3{line-height:1.6;letter-spacing:.14em}
 @media(max-width:420px){.hero-h1 .brand-hero{font-size:clamp(52px,18.5vw,70px)}}
 @media(max-width:640px){.hero .wrap{padding-block:64px 64px}section{padding-block:64px}.stat{padding:30px 16px 28px}}
+
+/* ===== DETOX page system deltas (devsangho.github.io/DETOX-public, static/detox.css) ===== */
+:root{--ease-out-brand:cubic-bezier(.16,1,.3,1)}
+a{transition:color .25s var(--ease),border-color .25s var(--ease)}
+sub{font-size:.62em;line-height:0}
+.dmark{font-weight:600;color:var(--ink);letter-spacing:.01em}
+.hero .wrap{grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);padding-block:clamp(72px,9vw,124px) clamp(64px,8vw,108px)}
+.hero-h1 .full-title{margin:26px 0 0;max-width:34ch;color:var(--ink);font-size:clamp(20px,1.9vw,28px);font-weight:600;letter-spacing:-.025em;line-height:1.3;text-wrap:balance}
+.hero-claim{margin:18px 0 0;max-width:46ch;color:var(--body);font-size:clamp(16px,1.25vw,19px);font-weight:500;line-height:1.6}
+.hero-claim b{color:var(--ink);font-weight:600}
+.btn-row{margin-top:30px}
+.btn:hover .arr{transform:translate(3px,-3px)}
+.notes{margin-top:20px}
+.hero-art{max-width:560px}
+.site-nav .nav-cta{transition:background .25s var(--ease),box-shadow .25s var(--ease)}
+.site-nav .nav-cta.off{box-shadow:none}
+.site-nav .nav-cta:not(.off):hover{color:#fff;background:var(--blue);box-shadow:0 6px 20px rgba(63,88,118,.28)}
+@media(max-width:900px){.site-nav a:not(.nav-cta){display:none}}
+@media(max-width:560px){.logo small{display:none}}
+.stat .big small{font-size:.5em}
+.sec-head{grid-template-columns:minmax(0,6fr) minmax(0,6fr)}
+h2{font-size:clamp(30px,3.4vw,50px)}
+.meta-list b{text-align:right}
+.faq-card{padding:22px 24px}
+.faq-card h3{margin:0 0 8px;color:var(--ink);font-size:clamp(17px,1.3vw,20px);font-weight:600;letter-spacing:-.02em;line-height:1.35}
+.faq-card p{font-size:15px;line-height:1.6;color:var(--body)}
+.stage-tags{display:flex;justify-content:flex-end;margin:0 0 8px}
+.schematic-tag{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:10.5px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line-strong);border-radius:999px;padding:3px 10px}
+.night .schematic-tag{color:var(--night-muted);border-color:var(--night-line)}
+.measured-tag{color:var(--blue);border-color:rgba(63,88,118,.35)}
+.scope{margin-top:28px; padding:18px 20px; border-left:2px solid var(--blue-light); background:rgba(255,255,255,.5); border-radius:0 12px 12px 0; font-size:14.5px; line-height:1.6; color:var(--body); max-width:72ch} .scope b{color:var(--ink)}
+.abstract .prose p.scope{margin-top:28px;font-size:14.5px;line-height:1.6;max-width:72ch}
+.night .measured-tag{color:#97aecc}
+@media(max-width:960px){.hero .wrap{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:860px){.sec-head{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:640px){.hero .wrap{padding-block:56px 56px}}
 </style>
 </head>
 <body>
@@ -933,7 +979,9 @@ section.night::before{content:"";position:absolute;inset:0;pointer-events:none;b
   <div class="wrap">
     <div class="hero-copy">
       <span class="kicker">VLA execution · POSTECH</span>
-      <h1 class="hero-h1" aria-label="System 0.5: Learning to Restore Nominal VLA Execution Under Unknown Low-Level Changes"><span class="wordmark brand-hero" aria-hidden="true">System&nbsp;<span class="num">0.5</span></span><span class="sr">: </span><span class="full-title">Learning to Restore <b>Nominal</b> VLA Execution Under Unknown Low-Level Changes</span></h1>
+      <h1 class="hero-h1" aria-label="System 0.5: Learning to Restore Nominal VLA Execution Under Unknown Low-Level Changes"><span class="wordmark brand-hero" aria-hidden="true">System&nbsp;<span class="num">0.5</span></span><span class="sr">: </span><span class="full-title">Learning to Restore Nominal VLA Execution Under Unknown Low-Level Changes</span></h1>
+      <p class="hero-claim">A VLA policy learns how its chunks move the arm under the System&nbsp;0 that recorded its demonstrations; when controllers, gains or joints change, the same chunks move the arm elsewhere.
+      <b>Following the command is not the fix.</b> <span class="dmark">System 0.5</span> identifies the current System&nbsp;0 from its own history and restores each chunk&rsquo;s <b>nominal execution</b>.</p>
       <div>
         <p class="authors"><span><a href="https://www.devsangho.com" target="_blank" rel="noopener">Sangho Yun</a><sup>1</sup></span>, <span>Minsoo Kim<sup>2</sup></span>, and <span>Hwanjo Yu<sup>1,2</sup></span></p>
         <p class="affil"><img src="static/postech_emblem.png" alt="POSTECH emblem">POSTECH, <a href="https://sites.google.com/view/postechdi" target="_blank" rel="noopener">DI Lab</a></p>
@@ -942,13 +990,13 @@ section.night::before{content:"";position:absolute;inset:0;pointer-events:none;b
           POSTECH, Pohang, South Korea · Correspondence: <a href="mailto:hwanjoyu@postech.ac.kr">Hwanjo Yu</a></p>
       </div>
       <div class="btn-row">
-        <a class="btn primary" href="#method">How It Works <span class="arr" aria-hidden="true">↓</span></a>
-        <a class="btn" href="#bibtex">BibTeX</a>
+        <a class="btn primary" href="#abstract">Read the abstract <span class="arr" aria-hidden="true">↓</span></a>
         <button class="btn disabled" type="button" disabled>Paper (soon)</button>
         <button class="btn disabled" type="button" disabled>Code (soon)</button>
+        <a class="btn" href="#bibtex">BibTeX</a>
       </div>
       <div class="notes">
-        <p>The paper, code and checkpoints will be released soon.</p>
+        <p>Animations marked <i>schematic</i> illustrate the mechanism. Every number on this page comes from the manuscript, and the LIBERO replay and the UR5e clips are recorded data.</p>
       </div>
     </div>
     <div class="hero-art">
@@ -969,48 +1017,12 @@ section.night::before{content:"";position:absolute;inset:0;pointer-events:none;b
 </div>
 
 <!-- ============ TL;DR ============ -->
-<section id="tldr" class="tint">
-  <div class="wrap">
-    <div class="tldr">
-      <div class="rv">
-        <div class="label"><span class="no">01</span>In one minute</div>
-        <h2>Why Chunks Drift Under a New System&nbsp;0</h2>
-        <p class="tldr-lede" style="margin-top:24px">A VLA learns how its chunks move the arm under the <b>System 0</b> that recorded its demonstrations. When gains, control laws or joints change, the same chunks move the arm elsewhere. <b>System 0.5</b> restores each chunk's <b>nominal execution</b> below a frozen VLA.</p>
-      </div>
-      <ul class="tldr-list rv" style="--d:120ms">
-        <li><span class="n">01</span><div><b>The target is the nominal execution, not the command.</b><span>In LIBERO the hand moves about a fifth of each commanded step per tick, and the policy learned that motion.</span></div></li>
-        <li><span class="n">02</span><div><b>Identify, then correct, from its own history.</b><span>No access to the parameters of System 0, no retraining of the VLA; about 1 ms per tick on one CPU thread.</span></div></li>
-        <li><span class="n">03</span><div><b>Trained through a forward model, without RL.</b><span>Gradients of a counterfactual error flow through the model's sensitivity J.</span></div></li>
-        <li><span class="n">04</span><div><b>72.7% vs 56.6% on RoboStress; 9.0 → 1.2 mm on a real UR5e.</b><span>Above all four baselines over eight changes outside the training distribution.</span></div></li>
-      </ul>
-    </div>
-  </div>
-</section>
-
-<section id="abstract">
-  <div class="wrap abstract">
-    <div class="rv">
-      <div class="label"><span class="no">02</span>Paper</div>
-      <h2>Abstract</h2>
-      <ul class="meta-list">
-        <li><span>Paper</span><b>Coming soon</b></li>
-        <li><span>Policy</span><b>π<sub>0.5</sub> (frozen)</b></li>
-        <li><span>Benchmarks</span><b>RoboStress · J-PARC</b></li>
-        <li><span>Platforms</span><b>LIBERO · UR5e</b></li>
-      </ul>
-    </div>
-    <div class="prose rv" style="--d:120ms">
-      <p>A vision-language-action (VLA) policy outputs action chunks that System 0 (the controller and the robot body) turns into motion. System 0 rarely stays as it was when the demonstrations were recorded. Robots run under other controllers and gains, and joint faults can halve the success of π<sub>0.5</sub>. A remedy that covers every change is to make the arm follow the command. In LIBERO, however, the demonstrations' System 0 moves the hand about a fifth of each commanded displacement per tick, and the policy learned this motion, not the command. We present System 0.5, a layer between a frozen VLA and System 0. The layer recovers success by learning to restore each chunk's nominal execution, the motion the demonstrations' System 0 would produce from where the chunk starts. The layer identifies the current System 0 from its own history of commands and measured motion. It is trained by gradients through a learned forward model, without reinforcement learning. With π<sub>0.5</sub> on LIBERO, System 0.5 exceeds the best reported success on two joint-fault benchmarks, reaching 72.7% against 56.6% on RoboStress. On average over eight changes outside its training distribution, it outperforms all four baselines. On a real UR5e, a second layer trained with the same losses lowers the tracking error from 9.0 to 1.2 mm at every one of 30 placements and completes 21 of the 30 trials against 16 without a layer.</p>
-    </div>
-  </div>
-</section>
-
 <!-- ============ PROBLEM ============ -->
 <section id="problem">
   <div class="wrap">
     <div class="sec-head rv">
       <div>
-        <div class="label"><span class="no">03</span>The problem</div>
+        <div class="label"><span class="no">01</span>The problem</div>
         <h2>The Robot Runs a Different System&nbsp;0</h2>
       </div>
       <p class="lede">From its demonstrations, a policy learns how far, how fast and in which direction a command moves the arm under the <b>nominal System 0</b>, the one that recorded them. When the gain doubles, the same chunk moves the hand farther, and the next camera image shows a scene that no demonstration contains.</p>
@@ -1024,10 +1036,12 @@ section.night::before{content:"";position:absolute;inset:0;pointer-events:none;b
           <button class="chip" data-k="worn">Worn joints</button>
         </div>
         <button class="iconbtn" id="replay-btn" aria-label="Replay">↻ replay</button>
+        <div class="stage-tags"><span class="schematic-tag measured-tag">recorded · LIBERO</span></div>
         <div class="stage"><canvas id="replay-cv" role="img" aria-label="Top view of the hand path under the nominal System 0 and under the selected change, drawn tick by tick from a recorded LIBERO episode."></canvas></div>
         <div class="legend"><span><i class="lg-ours"></i>nominal System 0</span><span><i class="lg-slate"></i>changed System 0, no layer</span><span><i class="lg-coral"></i>gap at the current tick</span></div>
       </div>
       <div class="rv" style="--d:120ms">
+        <div class="stage-tags"><span class="schematic-tag measured-tag">recorded · LIBERO</span></div>
         <div class="stage"><canvas id="gap-cv" role="img" aria-label="Distance of the hand from its nominal position over 1.5 seconds for four changes."></canvas></div>
         <div class="readout"><span>tick <b id="rp-tick">0</b> / 30</span><span>time <b id="rp-time">0.00 s</b></span><span>gap now <b id="rp-gap">0.0 mm</b></span><span>chunk <b id="rp-chunk">1</b></span></div>
         <p class="cap"><b>Recorded data, not a sketch.</b> The same π<sub>0.5</sub> chunks of one LIBERO-Spatial episode replayed open loop in simulation, without a layer, under the nominal System 0 and four changes from the controller, body and joint families (paper Fig. 1). One tick is 50 ms; a new chunk starts every five ticks. Top view of the hand, played at one third of real speed.</p>
@@ -1041,13 +1055,14 @@ section.night::before{content:"";position:absolute;inset:0;pointer-events:none;b
   <div class="wrap">
     <div class="sec-head rv">
       <div>
-        <div class="label"><span class="no">04</span>The target</div>
+        <div class="label"><span class="no">02</span>The target</div>
         <h2>Not the Command, the Learned Motion</h2>
       </div>
       <p class="lede">A remedy that covers every change is to make the arm follow the command. But under LIBERO's own controller the hand moves only <b>0.22 of each commanded step per tick</b>, and the demonstrations recorded this partial motion. Following the command moves the hand about four times as far per tick, into states the policy never learned to act from.</p>
     </div>
     <div class="grid-2 top">
       <div class="rv">
+        <div class="stage-tags"><span class="schematic-tag">schematic</span></div>
         <div class="stage"><canvas id="cmd-cv" role="img" aria-label="Schematic: per tick the nominal System 0 moves the hand 0.22 of the commanded step, while a command-following layer moves it the full step."></canvas></div>
         <div class="legend"><span><i class="lg-dash"></i>commanded steps</span><span><i class="lg-ours"></i>nominal execution (what the demos show)</span><span><i class="lg-slate"></i>follow the command</span></div>
         <p class="cap">Schematic of one chunk with the measured nominal ratio of 0.22. The dashed arrows are the steps the ten commands ask for.</p>
@@ -1071,6 +1086,7 @@ section.night::before{content:"";position:absolute;inset:0;pointer-events:none;b
         <div class="readout"><span>error now <b id="rs-err">0.0</b></span><span>largest so far <b id="rs-max">0.0</b></span></div>
       </div>
       <div class="rv" style="--d:120ms">
+        <div class="stage-tags"><span class="schematic-tag">schematic</span></div>
         <div class="stage"><canvas id="restart-cv" role="img" aria-label="Schematic: an arm under a changed System 0 drifts; at every chunk start a new nominal reference is launched from the actual state."></canvas></div>
         <div class="legend"><span><i class="lg-slate"></i>actual motion under a changed System 0</span><span><i class="lg-ours"></i>nominal reference</span><span><i class="lg-coral"></i>tracking error</span></div>
       </div>
@@ -1084,13 +1100,14 @@ section.night::before{content:"";position:absolute;inset:0;pointer-events:none;b
   <div class="wrap" style="position:relative">
     <div class="sec-head rv">
       <div>
-        <div class="label"><span class="no">05</span>Method · deployment</div>
+        <div class="label"><span class="no">03</span>Method · deployment</div>
         <h2>Identify System&nbsp;0, Then Correct</h2>
       </div>
       <p class="lede">System 0.5 sits between a <b>frozen VLA</b> and System 0. Once per 50 ms tick it reads its own history of commands and measured motion, summarizes the current System 0 as a vector <span class="mono">z</span>, and corrects the arm command. It never sees the parameters of System 0. One tick takes about <b>1 ms on one CPU thread</b>.</p>
     </div>
     <div class="grid-2 top wide-l">
       <div class="rv">
+        <div class="stage-tags"><span class="schematic-tag">schematic</span></div>
         <div class="stage scroll"><svg id="pipe" viewBox="0 0 760 430" role="img" aria-label="Deployment pipeline of System 0.5"></svg></div>
       </div>
       <div class="rv" style="--d:120ms">
@@ -1116,6 +1133,7 @@ section.night::before{content:"";position:absolute;inset:0;pointer-events:none;b
         </div>
       </div>
       <div class="rv" style="--d:120ms">
+        <div class="stage-tags"><span class="schematic-tag">schematic · live toy</span></div>
         <div class="stage"><canvas id="rls-cv" role="img" aria-label="Live demonstration: commands and the measured motion over the last 48 ticks, and RLS map sizes for lags 0 to 4."></canvas></div>
         <p class="cap">Live toy simulation in your browser: random commands drive a one-dimensional System 0 with the delay and gain you set, plus measurement noise. The layer's real estimator uses the same idea on six-dimensional commands with a forgetting time of 20 s; the encoder then reads these statistics together with the last 48 entries (2.4 s).</p>
       </div>
@@ -1128,7 +1146,7 @@ section.night::before{content:"";position:absolute;inset:0;pointer-events:none;b
   <div class="wrap">
     <div class="sec-head rv">
       <div>
-        <div class="label"><span class="no">06</span>Method · action head</div>
+        <div class="label"><span class="no">04</span>Method · action head</div>
         <h2>A Correction With Structure</h2>
       </div>
       <p class="lede">From <span class="mono">z</span>, the head outputs four terms. A <b>lead mix</b> blends in actions the chunk plans up to four ticks ahead, for a delayed System 0. A <b>3×3 matrix</b> rescales and rotates the translation commands, three <b>factors</b> rescale the rotation commands, and a <b>residual</b> adds what remains.</p>
@@ -1140,6 +1158,7 @@ section.night::before{content:"";position:absolute;inset:0;pointer-events:none;b
           <button class="chip" data-k="dk">δK · scale + rotate</button>
           <button class="chip" data-k="r">r · residual</button>
         </div>
+        <div class="stage-tags"><span class="schematic-tag">schematic</span></div>
         <div class="stage"><canvas id="head-cv" role="img" aria-label="Schematic of how each head term changes the commands of a chunk."></canvas></div>
         <div class="legend"><span><i class="lg-slate"></i>VLA command a<sub>t</sub></span><span><i class="lg-ours"></i>corrected command u<sub>t</sub></span></div>
       </div>
@@ -1161,7 +1180,7 @@ section.night::before{content:"";position:absolute;inset:0;pointer-events:none;b
   <div class="wrap">
     <div class="sec-head rv">
       <div>
-        <div class="label"><span class="no">07</span>Method · training</div>
+        <div class="label"><span class="no">05</span>Method · training</div>
         <h2>Trained Through a Forward Model</h2>
       </div>
       <p class="lede">In simulation, training copies the full simulator state at each chunk's start and runs the chunk under the nominal System 0 to record its nominal execution. A learned forward model predicts motion from commands; its <b>sensitivity J</b> turns any other command into the change of motion it would have caused, so the layer learns from gradients of a counterfactual error.</p>
@@ -1174,6 +1193,7 @@ section.night::before{content:"";position:absolute;inset:0;pointer-events:none;b
         <button class="chip" data-s="3">4 · counterfactual through J</button>
         <button class="chip" data-s="4">5 · gradient step</button>
       </div>
+      <div class="stage-tags"><span class="schematic-tag">schematic</span></div>
       <div class="stage"><canvas id="train-cv" role="img" aria-label="Animated training loop: copy, nominal run, changed run, counterfactual error through the forward model sensitivity, gradient update."></canvas></div>
       <p class="cap" id="train-cap" style="min-height:3.2em"></p>
     </div>
@@ -1205,7 +1225,7 @@ section.night::before{content:"";position:absolute;inset:0;pointer-events:none;b
   <div class="wrap">
     <div class="sec-head rv">
       <div>
-        <div class="label"><span class="no">08</span>Results · joint-fault benchmarks</div>
+        <div class="label"><span class="no">06</span>Results · joint-fault benchmarks</div>
         <h2>Above the Best Reported Success</h2>
       </div>
       <p class="lede">Both benchmarks reimplemented with our 40 LIBERO tasks and the public π<sub>0.5</sub> checkpoint. Their fault types appear in our training families; their parameter combinations, scenarios and initial states do not. Gain over base: <b>2.8×</b> that of SC-VLA and <b>2.4×</b> that of J-PARC.</p>
@@ -1245,7 +1265,7 @@ section.night::before{content:"";position:absolute;inset:0;pointer-events:none;b
   <div class="wrap">
     <div class="sec-head rv">
       <div>
-        <div class="label"><span class="no">09</span>Real robot</div>
+        <div class="label"><span class="no">07</span>Real robot</div>
         <h2>UR5e: 9.0 → 1.2&nbsp;mm</h2>
       </div>
       <p class="lede">π<sub>0.5</sub> fine-tuned on 29 demonstrations sends one command every 0.29 s. Without a layer, the robot executes only <b>44% of each commanded step</b>, because each pose it receives is the step added to a pose read 0.26 s earlier. A second layer, trained with the same losses on a kinematic simulator of this arm, runs at unit gain against an online gain calibrator and no layer, in rotating order at 30 toy placements.</p>
@@ -1274,6 +1294,7 @@ section.night::before{content:"";position:absolute;inset:0;pointer-events:none;b
         <button class="chip" data-f="gain">System 0.5 succeeds, unit gain fails</button>
         <button class="chip" data-f="fail">System 0.5 fails</button>
       </div>
+      <div class="stage-tags"><span class="schematic-tag measured-tag">recorded · base camera · 4×</span></div>
       <div class="wall collapsed" id="wall"></div>
       <div style="display:flex;justify-content:center;margin-top:16px"><button class="iconbtn" id="wall-more">show all clips ↓</button></div>
     </div>
@@ -1285,18 +1306,38 @@ section.night::before{content:"";position:absolute;inset:0;pointer-events:none;b
   <div class="wrap">
     <div class="sec-head single rv">
       <div>
-        <div class="label"><span class="no">10</span>Questions</div>
+        <div class="label"><span class="no">08</span>Questions</div>
         <h2>System 0.5 at a Glance</h2>
       </div>
     </div>
     <div class="faq">
-      <div class="card rv" style="--d:0ms"><h3>What is System 0.5?</h3><p>System 0.5 is a learned layer between a frozen vision-language-action (VLA) policy and System 0, the controller and the robot body. Once per 50 ms tick it corrects the arm part of each command so that every action chunk moves the arm as it would under the System 0 that recorded the policy's demonstrations.</p></div>
-      <div class="card rv" style="--d:100ms"><h3>What is the nominal execution of a chunk?</h3><p>The nominal execution is the trajectory that the nominal System 0, the one under which the demonstrations were recorded, would produce from the state where the chunk actually starts. It restarts from the actual state at every chunk, so the error one chunk leaves is not carried into the next.</p></div>
-      <div class="card rv" style="--d:0ms"><h3>Why not make the arm follow the command?</h3><p>Under LIBERO's own controller the hand moves about 0.22 of each commanded step per tick, and the policy learned this partial motion. Trained toward the command instead of the nominal execution, the same layer succeeds in 25.6% of episodes under changes outside its training distribution, against 76.9% for the policy without a layer.</p></div>
-      <div class="card rv" style="--d:100ms"><h3>Does System 0.5 retrain the VLA or need the parameters of System 0?</h3><p>No. The VLA stays frozen, and the layer never receives the parameters of System 0. It identifies the current System 0 from its own history of commands and measured motion, using recursive least-squares statistics and an encoder that summarizes them as a 64-dimensional vector.</p></div>
-      <div class="card rv" style="--d:0ms"><h3>How is System 0.5 trained?</h3><p>In simulation, by gradients through a learned forward model and without reinforcement learning. Training copies the simulator state at each chunk's start to record the nominal execution, and the forward model's sensitivity turns other commands into the change of motion they would cause. Training replays recorded π<sub>0.5</sub> chunks and never queries the VLA. At deployment one tick takes about 1 ms on one CPU thread.</p></div>
-      <div class="card rv" style="--d:100ms"><h3>What results does System 0.5 achieve?</h3><p>With π<sub>0.5</sub> on LIBERO, System 0.5 reaches 72.7% success on RoboStress against 56.6% best reported, and 68.1% on the J-PARC joint-fault benchmark against 61.7%. Over eight System 0 changes outside its training distribution it reaches 84.7%, above all four baselines (best 79.4%). On a real UR5e it lowers the tracking error from 9.0 to 1.2 mm at every one of 30 placements and completes 21 of 30 trials against 16 without a layer.</p></div>
-      <div class="card rv" style="--d:0ms"><h3>Are the code and paper available?</h3><p>The paper and code are coming soon. This page shows the method, the results and all 90 UR5e hardware trials.</p></div>
+      <div class="card faq-card rv" style="--d:0ms"><h3>What is System 0.5?</h3><p>System 0.5 is a learned layer between a frozen vision-language-action (VLA) policy and System 0, the controller and the robot body. Once per 50 ms tick it corrects the arm part of each command so that every action chunk moves the arm as it would under the System 0 that recorded the policy's demonstrations.</p></div>
+      <div class="card faq-card rv" style="--d:100ms"><h3>What is the nominal execution of a chunk?</h3><p>The nominal execution is the trajectory that the nominal System 0, the one under which the demonstrations were recorded, would produce from the state where the chunk actually starts. It restarts from the actual state at every chunk, so the error one chunk leaves is not carried into the next.</p></div>
+      <div class="card faq-card rv" style="--d:0ms"><h3>Why not make the arm follow the command?</h3><p>Under LIBERO's own controller the hand moves about 0.22 of each commanded step per tick, and the policy learned this partial motion. Trained toward the command instead of the nominal execution, the same layer succeeds in 25.6% of episodes under changes outside its training distribution, against 76.9% for the policy without a layer.</p></div>
+      <div class="card faq-card rv" style="--d:100ms"><h3>Does System 0.5 retrain the VLA or need the parameters of System 0?</h3><p>No. The VLA stays frozen, and the layer never receives the parameters of System 0. It identifies the current System 0 from its own history of commands and measured motion, using recursive least-squares statistics and an encoder that summarizes them as a 64-dimensional vector.</p></div>
+      <div class="card faq-card rv" style="--d:0ms"><h3>How is System 0.5 trained?</h3><p>In simulation, by gradients through a learned forward model and without reinforcement learning. Training copies the simulator state at each chunk's start to record the nominal execution, and the forward model's sensitivity turns other commands into the change of motion they would cause. Training replays recorded π<sub>0.5</sub> chunks and never queries the VLA. At deployment one tick takes about 1 ms on one CPU thread.</p></div>
+      <div class="card faq-card rv" style="--d:100ms"><h3>What results does System 0.5 achieve?</h3><p>With π<sub>0.5</sub> on LIBERO, System 0.5 reaches 72.7% success on RoboStress against 56.6% best reported, and 68.1% on the J-PARC joint-fault benchmark against 61.7%. Over eight System 0 changes outside its training distribution it reaches 84.7%, above all four baselines (best 79.4%). On a real UR5e it lowers the tracking error from 9.0 to 1.2 mm at every one of 30 placements and completes 21 of 30 trials against 16 without a layer.</p></div>
+      <div class="card faq-card rv" style="--d:0ms"><h3>What are the limits of System 0.5?</h3><p>The layer assumes that its own measurements are not delayed; on the UR5e, whose measurements are late, the second layer is trained with the measurement lag varied. On the UR5e it lowers the tracking error at every one of 30 placements and completes 21 of 30 trials against 16 without a layer (one-sided sign test p = 0.063); the change on that arm shortens every step without changing its direction, so its measured cost is time. Under joint range limits and a joint lock, where no command can produce part of the motion, System 0.5 matches J-PARC within one point.</p></div>
+      <div class="card faq-card rv" style="--d:100ms"><h3>Are the paper and code available?</h3><p>The paper is under review and the code will be released upon publication. This page shows the method, the results and all 90 UR5e hardware trials.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="abstract" class="tint">
+  <div class="wrap abstract">
+    <div class="rv">
+      <div class="label"><span class="no">09</span>Paper</div>
+      <h2>Abstract</h2>
+      <ul class="meta-list">
+        <li><span>Venue</span><b>RSS 2027 (under review)</b></li>
+        <li><span>Simulation</span><b>LIBERO · RoboStress · J-PARC</b></li>
+        <li><span>Policy</span><b>π<sub>0.5</sub> (frozen)</b></li>
+        <li><span>Hardware</span><b>UR5e</b></li>
+      </ul>
+    </div>
+    <div class="prose rv" style="--d:120ms">
+      <p>A vision-language-action (VLA) policy outputs action chunks that System 0 (the controller and the robot body) turns into motion. System 0 rarely stays as it was when the demonstrations were recorded. Robots run under other controllers and gains, and joint faults can halve the success of π<sub>0.5</sub>. A remedy that covers every change is to make the arm follow the command. In LIBERO, however, the demonstrations' System 0 moves the hand about a fifth of each commanded displacement per tick, and the policy learned this motion, not the command. We present <b class="dmark">System 0.5</b>, a layer between a frozen VLA and System 0. The layer recovers success by learning to restore each chunk's nominal execution, the motion the demonstrations' System 0 would produce from where the chunk starts. The layer identifies the current System 0 from its own history of commands and measured motion. It is trained by gradients through a learned forward model, without reinforcement learning. With π<sub>0.5</sub> on LIBERO, <b class="dmark">System 0.5</b> exceeds the best reported success on two joint-fault benchmarks, reaching 72.7% against 56.6% on RoboStress. On average over eight changes outside its training distribution, it outperforms all four baselines. On a real UR5e, a second layer trained with the same losses lowers the tracking error from 9.0 to 1.2 mm at every one of 30 placements and completes 21 of the 30 trials against 16 without a layer.</p>
+    <p class="scope"><b>Scope.</b> Simulation tests use the public π<sub>0.5</sub> LIBERO checkpoint; the eight changes outside the training distribution run on the ten LIBERO-Spatial tasks. On the UR5e, the change to System&nbsp;0 shortens every commanded step without changing its direction, and the success difference (21 vs 16 of 30 trials) gives p&nbsp;=&nbsp;0.063 in the one-sided sign test fixed before the experiment.</p>
     </div>
   </div>
 </section>
@@ -1308,7 +1349,7 @@ section.night::before{content:"";position:absolute;inset:0;pointer-events:none;b
   <div class="wrap">
     <div class="sec-head single rv">
       <div>
-        <div class="label"><span class="no">11</span>Citation</div>
+        <div class="label"><span class="no">10</span>Citation</div>
         <h2>BibTeX</h2>
       </div>
     </div>
