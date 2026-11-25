@@ -1,0 +1,36 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+type: article
+title: "System 0.5: Learning to Restore Nominal VLA Execution Under Unknown Low-Level Changes"
+authors:
+  - family-names: Yun
+    given-names: Sangho
+    affiliation: POSTECH
+  - family-names: Kim
+    given-names: Minsoo
+    affiliation: POSTECH
+  - family-names: Yu
+    given-names: Hwanjo
+    affiliation: POSTECH
+date-released: 2026-11-23
+url: "https://devsangho.github.io/System0.5-public/"
+keywords:
+  - vision-language-action
+  - action chunking
+  - nominal execution
+  - low-level control
+  - robot manipulation
+preferred-citation:
+  type: article
+  title: "System 0.5: Learning to Restore Nominal VLA Execution Under Unknown Low-Level Changes"
+  authors:
+    - family-names: Yun
+      given-names: Sangho
+      affiliation: POSTECH
+    - family-names: Kim
+      given-names: Minsoo
+      affiliation: POSTECH
+    - family-names: Yu
+      given-names: Hwanjo
+      affiliation: POSTECH
+  year: 2026
