@@ -72,7 +72,7 @@ a:hover{color:var(--ink); border-bottom-color:var(--coral)}
 .kicker{display:inline-flex; align-items:center; gap:10px; font-family:var(--font-mono); font-size:12px; font-weight:500; letter-spacing:.14em; text-transform:uppercase; color:var(--blue)} /* F-13 */
 .kicker::before{content:""; width:28px; height:2px; border-radius:2px; background:var(--signal)}
 /* F-10; capped at the column width because "System 0.5" is wider than a one-word name (see report) */
-.brand-hero{margin:22px 0 0; color:var(--ink); font-family:var(--font-latin); font-size:min(clamp(70px,10vw,158px),23cqw); font-weight:400;
+.brand-hero{margin:0; color:var(--ink); font-family:var(--font-latin); font-size:min(clamp(70px,10vw,158px),23cqw); font-weight:400;
   letter-spacing:-.078em; line-height:.86; padding-right:.08em; white-space:nowrap}
 .brand-hero .num{background:var(--signal); -webkit-background-clip:text; background-clip:text; color:transparent; padding-right:.06em} /* H-03 */
 .full-title{margin:26px 0 0; max-width:34ch; color:var(--ink); font-size:clamp(20px,1.9vw,28px); font-weight:600; letter-spacing:-.025em; line-height:1.3; text-wrap:balance} /* F-11 */
