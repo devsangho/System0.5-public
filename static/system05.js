@@ -604,7 +604,7 @@ function hbars(el, rows, {max = 100, marker = null, replayId = null} = {}) {
   el("line", {x1: L, x2: R, y1: B, y2: B, class: "ax"});
   el("text", {x: (L + R) / 2, y: B + 42, "text-anchor": "middle"}).textContent = "mean tracking error against the nominal execution (mm)";
   el("text", {x: R, y: T + 4, "text-anchor": "end", class: "v", style: "font-size:13px"}).textContent = `Spearman ρ = ${D.scatter.rho.toFixed(2).replace("-", "−")}`;
-  const LBL = {"L13-L13v3": "System 0.5", PASS: "pass-through", "L13-L13v3-cmd": "target: command", "SAC-SACv3": "Residual SAC"};
+  const LBL = {"L13-L13v3": "System 0.5", PASS: "pass-through", "L13-L13v3-cmd": "reference: command", "SAC-SACv3": "Residual SAC"};
   const PASS = pts.find(p => p.key === "PASS"), lx = X(PASS.track + .95), lyy = Y(PASS.success + 5);
   const leader = el("line", {x1: X(PASS.track) + 4, y1: Y(PASS.success) - 3, x2: lx - 3, y2: lyy + 2, stroke: C.base, "stroke-width": .8, opacity: 0});
   const nodes = [...pts].sort((a, b) => a.track - b.track).map(p => {
@@ -626,9 +626,47 @@ function hbars(el, rows, {max = 100, marker = null, replayId = null} = {}) {
   onReveal(svg, play, .3); onReplay("scatter-replay", play);
 })();
 
+/* ================= 06 results: other policies ================= */
+(() => {
+  const rows = [];
+  D.policies.filter(p => p.key !== "pi05").forEach(p => {
+    rows.push({name: p.name, sub: "pass-through", v: p.pass});
+    rows.push({name: p.name + " + System 0.5", sub: `nominal ${p.nom_pass.toFixed(1)} → ${p.nom_ours.toFixed(1)}`, v: p.ours, cls: "ours"});
+  });
+  hbars($("#pol-bars"), rows, {replayId: "pol-replay"});
+})();
+
+/* ================= 06 results: strength sweep, change of error vs change of success ================= */
+(() => {
+  const svg = $("#sweep"); if (!svg) return;
+  const el = mk(svg), pts = D.sweep.points, L = 56, R = 540, T = 20, B = 350;
+  const xmin = -80, xmax = 60, ymin = -20, ymax = 70;
+  const X = v => L + (R - L) * (clamp(v, xmin, xmax) - xmin) / (xmax - xmin), Y = v => B - (B - T) * (v - ymin) / (ymax - ymin);
+  for (let v = -10; v <= 60; v += 10) { el("line", {x1: L, x2: R, y1: Y(v), y2: Y(v), class: "gl"}); el("text", {x: L - 10, y: Y(v) + 4, "text-anchor": "end"}).textContent = (v > 0 ? "+" : "") + v; }
+  for (let v = -80; v <= 60; v += 20) el("text", {x: X(v), y: B + 20, "text-anchor": "middle"}).textContent = (v > 0 ? "+" : "") + v + "%";
+  el("line", {x1: L, x2: R, y1: Y(0), y2: Y(0), class: "ax"});
+  el("line", {x1: X(0), x2: X(0), y1: T, y2: B, stroke: C.base, "stroke-width": 1, "stroke-dasharray": "4 4"});
+  el("text", {x: (L + R) / 2, y: B + 42, "text-anchor": "middle"}).textContent = "change of tracking error, System 0.5 vs pass-through";
+  el("text", {x: L - 44, y: T - 6}).textContent = "Δ success (pts)";
+  el("text", {x: R, y: T + 4, "text-anchor": "end", class: "v", style: "font-size:13px"}).textContent = `Spearman ρ = ${D.sweep.rho.toFixed(2).replace("-", "−")}`;
+  const LV = {weak: "weak", main: "main", strong: "strong"};
+  const nodes = pts.map(p => {
+    const g = el("g", {}), out = p.d_err > xmax;
+    const c = el("circle", {cx: X(p.d_err), cy: Y(0), r: 5, fill: p.d_err < 0 ? C.ours : C.base, opacity: 0}, g);
+    el("title", {}, c).textContent = `${p.family} (${LV[p.level]}): error ${p.d_err > 0 ? "+" : ""}${p.d_err.toFixed(1)}%, success ${p.pass_succ.toFixed(1)} → ${p.ours_succ.toFixed(1)}%`;
+    const tl = out ? el("text", {x: X(p.d_err) - 8, y: Y(p.d_succ) - 8, "text-anchor": "end", fill: C.muted, opacity: 0}, g) : null;
+    if (tl) tl.textContent = `+${Math.round(p.d_err)}%`;
+    return {p, c, tl};
+  });
+  const play = () => nodes.forEach((n, i) => { n.c.setAttribute("cy", Y(0)); n.c.setAttribute("opacity", 0); setTimeout(() => tween(900, t => {
+    const k = ease(t); n.c.setAttribute("cy", lerp(Y(0), Y(n.p.d_succ), k)); n.c.setAttribute("opacity", Math.min(1, t * 2)); if (n.tl) n.tl.setAttribute("opacity", k);
+  }), RM ? 0 : i * 60); });
+  onReveal(svg, play, .3); onReplay("sweep-replay", play);
+})();
+
 /* ================= 07 hardware: UR5e ================= */
 (() => {
-  const H = D.ur5e, A = H.per_arm, NAMES = {gain1: "Unit gain", s05: "Online calibrator", layer: "System 0.5"};
+  const H = D.ur5e, A = H.per_arm, NAMES = {gain1: "Pass-through", s05: "Online calibrator", layer: "System 0.5"};
   const box = $("#hw-kpis");
   if (box) box.innerHTML = ["gain1", "s05", "layer"].map(k => `<div class="kpi ${k === "layer" ? "ours" : ""}"><div class="k">${NAMES[k]}</div><div class="v">${A[k].err.toFixed(1)}<small> mm</small></div><div class="s">${A[k].success}/30 completed · median ${A[k].median_time.toFixed(0)} s</div></div>`).join("");
   const by = {}; H.trials.forEach(t => (by[t.pair] ||= {})[t.arm] = t);
@@ -638,7 +676,7 @@ function hbars(el, rows, {max = 100, marker = null, replayId = null} = {}) {
     const el = mk(sv), L = 50, R = 540, T = 20, B = 470, X = v => L + (R - L) * v / 12, rowH = (B - T) / pairs.length;
     sv.setAttribute("viewBox", "0 0 560 540");
     for (let v = 0; v <= 12; v += 2) { el("line", {x1: X(v), x2: X(v), y1: T - 6, y2: B, class: "gl"}); el("text", {x: X(v), y: B + 18, "text-anchor": "middle"}).textContent = v; }
-    el("text", {x: (L + R) / 2, y: B + 36, "text-anchor": "middle"}).textContent = "tracking error (mm), placements sorted by unit-gain error";
+    el("text", {x: (L + R) / 2, y: B + 36, "text-anchor": "middle"}).textContent = "tracking error (mm), placements sorted by pass-through error";
     const items = pairs.map((p, i) => {
       const y = T + rowH * (i + .5), r = by[p];
       el("text", {x: L - 10, y: y + 3.5, "text-anchor": "end", style: "font-size:9.5px;font-family:var(--font-mono)"}).textContent = "P" + String(p).padStart(2, "0");
@@ -648,7 +686,7 @@ function hbars(el, rows, {max = 100, marker = null, replayId = null} = {}) {
       const our = el("circle", {cx: X(r.gain1.err), cy: y, r: 4.4, fill: C.ours});
       return {r, ln, cal, our};
     });
-    [[C.change, null, "unit gain"], ["#fff", C.base, "calibrator"], [C.ours, null, "System 0.5"]].forEach(([f, s, t], i) => { el("circle", {cx: L + i * 140, cy: 520, r: 4, fill: f, stroke: s || "none", "stroke-width": 1.5}); el("text", {x: L + i * 140 + 10, y: 524}).textContent = t; });
+    [[C.change, null, "pass-through"], ["#fff", C.base, "calibrator"], [C.ours, null, "System 0.5"]].forEach(([f, s, t], i) => { el("circle", {cx: L + i * 140, cy: 520, r: 4, fill: f, stroke: s || "none", "stroke-width": 1.5}); el("text", {x: L + i * 140 + 10, y: 524}).textContent = t; });
     const play = () => items.forEach((it, i) => setTimeout(() => tween(1100, t => {
       const k = ease(t), xo = X(lerp(it.r.gain1.err, it.r.layer.err, k));
       it.our.setAttribute("cx", xo); it.ln.setAttribute("x2", xo);
@@ -679,7 +717,7 @@ function hbars(el, rows, {max = 100, marker = null, replayId = null} = {}) {
       el("circle", {cx: X(60), cy: Y(a60), r: 3.5, fill: k === "s05" ? C.base : k === "layer" ? C.ours : C.change}, lab);
       el("text", {x: X(60) - 8, y: Y(a60) + 4 + (k === "s05" ? 10 : k === "layer" ? -4 : 0), "text-anchor": "end", style: "font-size:11px;font-family:var(--font-mono)"}, lab).textContent = a60;
     });
-    [[C.change, "4 4", "unit gain"], [C.base, "", "calibrator"], [C.ours, "", "System 0.5"]].forEach(([s, da, t], i) => { el("line", {x1: L + i * 140, x2: L + i * 140 + 22, y1: B + 52, y2: B + 52, stroke: s, "stroke-width": 2, "stroke-dasharray": da}); el("text", {x: L + i * 140 + 30, y: B + 56}).textContent = t; });
+    [[C.change, "4 4", "pass-through"], [C.base, "", "calibrator"], [C.ours, "", "System 0.5"]].forEach(([s, da, t], i) => { el("line", {x1: L + i * 140, x2: L + i * 140 + 22, y1: B + 52, y2: B + 52, stroke: s, "stroke-width": 2, "stroke-dasharray": da}); el("text", {x: L + i * 140 + 30, y: B + 56}).textContent = t; });
     el("text", {x: L, y: T - 4, style: "font-size:10px;font-family:var(--font-mono);letter-spacing:.08em"}).textContent = "COMPLETED TRIALS (OF 30)";
     const play = () => { lab.setAttribute("opacity", 0); cr.setAttribute("width", 0); tween(2600, t => { cr.setAttribute("width", (R - L + 30) * t); if (t >= 1) tween(500, u => lab.setAttribute("opacity", u)); }); };
     onReveal(sc, play, .3); onReplay("cdf-replay", play);
@@ -692,9 +730,9 @@ function hbars(el, rows, {max = 100, marker = null, replayId = null} = {}) {
   const vio = new IntersectionObserver(es => es.forEach(e => { const v = e.target; if (e.isIntersecting) { if (!v.src) v.src = v.dataset.src; v.play().catch(() => {}); } else v.pause(); }), {rootMargin: "120px"});
   const ok = (c, k, p) => c[k].success ? `<span class="okmark success p${p}">✓ ${c[k].time_s.toFixed(0)} s</span>` : `<span class="okmark fail p${p}">× fail</span>`;
   const out = (c, k) => c[k].success ? `${c[k].time_s.toFixed(0)} s` : "fail";
-  wall.innerHTML = CLIPS.map(c => `<div class="tile" data-p="${c.pair}" tabindex="0" role="button" aria-label="Placement ${c.pair}: unit gain on the left, the online calibrator in the middle and System 0.5 on the right">`
-    + `<video muted loop playsinline preload="none" poster="${c.poster}" data-src="${c.video}" aria-label="Placement ${c.pair}: unit gain on the left, the online calibrator in the middle and System 0.5 on the right"></video>`
-    + `<span class="half-tag l">unit gain</span><span class="half-tag m">calibrator</span><span class="half-tag r">System 0.5</span>`
+  wall.innerHTML = CLIPS.map(c => `<div class="tile" data-p="${c.pair}" tabindex="0" role="button" aria-label="Placement ${c.pair}: pass-through on the left, the online calibrator in the middle and System 0.5 on the right">`
+    + `<video muted loop playsinline preload="none" poster="${c.poster}" data-src="${c.video}" aria-label="Placement ${c.pair}: pass-through on the left, the online calibrator in the middle and System 0.5 on the right"></video>`
+    + `<span class="half-tag l">pass-through</span><span class="half-tag m">calibrator</span><span class="half-tag r">System 0.5</span>`
     + ok(c, "gain1", 0) + ok(c, "s05", 1) + ok(c, "layer", 2) + `<span class="pl">P${String(c.pair).padStart(2, "0")}</span></div>`).join("");
   $$("video", wall).forEach(v => { if (!RM) vio.observe(v); });
   const F = {all: () => true, three: c => c.gain1.success && c.s05.success && c.layer.success, gain: c => c.layer.success && !c.gain1.success, fail: c => !c.layer.success};
@@ -702,7 +740,7 @@ function hbars(el, rows, {max = 100, marker = null, replayId = null} = {}) {
   const more = $("#wall-more");
   more.addEventListener("click", () => { const col = wall.classList.toggle("collapsed"); more.textContent = col ? "Show all 30 placements" : "Show fewer"; if (col) wall.scrollIntoView({block: "start", behavior: "smooth"}); });
   const lb = $("#lb"), lv = $("#lb-v");
-  const open = t => { const c = CLIPS.find(x => x.pair == t.dataset.p); lv.src = c.video; $("#lb-t").textContent = `Placement ${c.pair} · unit gain ${out(c, "gain1")} · calibrator ${out(c, "s05")} · System 0.5 ${out(c, "layer")} · 4× real time`; lb.classList.add("open"); lv.play().catch(() => {}); };
+  const open = t => { const c = CLIPS.find(x => x.pair == t.dataset.p); lv.src = c.video; $("#lb-t").textContent = `Placement ${c.pair} · pass-through ${out(c, "gain1")} · calibrator ${out(c, "s05")} · System 0.5 ${out(c, "layer")} · 4× real time`; lb.classList.add("open"); lv.play().catch(() => {}); };
   wall.addEventListener("click", e => { const t = e.target.closest(".tile"); if (t) open(t); });
   wall.addEventListener("keydown", e => { const t = e.target.closest(".tile"); if (t && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); open(t); } });
   const close = () => { lb.classList.remove("open"); lv.pause(); };

@@ -5,7 +5,7 @@
 <script>document.documentElement.classList.add("js")</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>System 0.5: Learning to Restore Nominal VLA Execution Under Unknown Low-Level Changes</title>
-<meta name="description" content="System 0.5 is a learned layer between a frozen vision-language-action (VLA) policy and the robot's controller that restores each action chunk's nominal execution when controllers, gains or joints change. It identifies the current low-level system from its own history of commands and measured motion and is trained through a learned forward model, without reinforcement learning.">
+<meta name="description" content="System 0.5 is a learned layer between a frozen vision-language-action (VLA) policy and the robot's controller that corrects each command toward the nominal execution of its action chunk when controllers, gains or joints change. It identifies the current low-level system from its own history of commands and measured motion and is trained on the tracking error through a learned forward model, without any task reward.">
 <link rel="canonical" href="https://devsangho.github.io/System0.5-public/">
 <meta name="robots" content="index, follow, max-image-preview:large, max-video-preview:-1, max-snippet:-1">
 <meta name="author" content="Sangho Yun, Minsoo Kim, Hwanjo Yu">
@@ -20,7 +20,7 @@
 <meta property="og:title" content="System 0.5: Learning to Restore Nominal VLA Execution Under Unknown Low-Level Changes">
 <meta property="og:description" content="A learned layer between a frozen VLA and System 0 that restores each chunk's nominal execution. 72.7% vs 56.6% on RoboStress; 9.0 to 1.2 mm tracking error on a real UR5e.">
 <meta property="og:url" content="https://devsangho.github.io/System0.5-public/">
-<meta property="og:updated_time" content="2026-11-23T12:30:00+09:00">
+<meta property="og:updated_time" content="2026-11-28T18:00:00+09:00">
 <meta property="og:image" content="https://devsangho.github.io/System0.5-public/static/og.jpg">
 <meta property="og:image:secure_url" content="https://devsangho.github.io/System0.5-public/static/og.jpg">
 <meta property="og:image:type" content="image/jpeg">
@@ -38,9 +38,9 @@
 <meta property="og:video:type" content="video/mp4">
 <meta property="og:video:width" content="962">
 <meta property="og:video:height" content="240">
-<meta property="og:video:alt" content="Real UR5e, one placement: unit gain, online gain calibrator and System 0.5 side by side at 4x real time">
+<meta property="og:video:alt" content="Real UR5e, one placement: pass-through, online gain calibrator and System 0.5 side by side at 4x real time">
 <meta property="article:published_time" content="2026-11-23T11:00:00+09:00">
-<meta property="article:modified_time" content="2026-11-23T12:30:00+09:00">
+<meta property="article:modified_time" content="2026-11-28T18:00:00+09:00">
 <meta property="article:author" content="Sangho Yun">
 <meta property="article:author" content="Minsoo Kim">
 <meta property="article:author" content="Hwanjo Yu">
@@ -102,7 +102,7 @@
     "@id": "https://devsangho.github.io/System0.5-public/#paper"
    },
    "primaryImageOfPage": "https://devsangho.github.io/System0.5-public/static/og.jpg",
-   "dateModified": "2026-11-23",
+   "dateModified": "2026-11-28",
    "inLanguage": "en"
   },
   {
@@ -113,7 +113,7 @@
    "alternativeHeadline": "System 0.5",
    "url": "https://devsangho.github.io/System0.5-public/",
    "mainEntityOfPage": "https://devsangho.github.io/System0.5-public/",
-   "abstract": "A vision-language-action (VLA) policy outputs action chunks that System 0 (the controller and the robot body) turns into motion. System 0 rarely stays as it was when the demonstrations were recorded. Robots run under other controllers and gains, and joint faults can halve the success of pi0.5. A remedy that covers every change is to make the arm follow the command. In LIBERO, however, the demonstrations' System 0 moves the hand about a fifth of each commanded displacement per tick, and the policy learned this motion, not the command. We present System 0.5, a layer between a frozen VLA and System 0. The layer recovers success by learning to restore each chunk's nominal execution, the motion the demonstrations' System 0 would produce from where the chunk starts. The layer identifies the current System 0 from its own history of commands and measured motion. It is trained by gradients through a learned forward model, without reinforcement learning. With pi0.5 on LIBERO, System 0.5 exceeds the best reported success on two joint-fault benchmarks, reaching 72.7% against 56.6% on RoboStress. On average over eight changes outside its training distribution, it outperforms all four baselines. On a real UR5e, a second layer trained with the same losses lowers the tracking error from 9.0 to 1.2 mm at every one of 30 placements and completes 21 of the 30 trials against 16 without a layer.",
+   "abstract": "A vision-language-action (VLA) policy is trained under one controller and robot body, its nominal System 0, but System 0 changes in use: joint faults lower the LIBERO success of pi0.5 from above 95% to below 57%. We trace such drops to the tracking error against the nominal execution, the motion that the nominal System 0 would produce for the same action chunk from the same state. We present System 0.5, a layer below a frozen VLA that identifies the current System 0 from its own history and corrects each command toward the nominal execution. It is trained on this error through a learned forward model, without any task reward. Under eight changes of System 0 absent from training, success rises more where System 0.5 lowers the error more. The same layer trained to follow the command instead lowers success from 76.9 to 25.6%. System 0.5 outperforms four baselines under these changes and exceeds the best reported mean success on our reimplementations of two joint-fault benchmarks. Retrained for a real UR5e, it lowers the tracking error by 87% and more than halves the median task time.",
    "keywords": [
     "System 0.5",
     "vision-language-action",
@@ -205,7 +205,7 @@
      "name": "Why not make the arm follow the command?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "Under LIBERO's own controller the hand moves about 0.22 of each commanded step per tick, and the policy learned this partial motion. Trained toward the command instead of the nominal execution, the same layer succeeds in 25.6% of episodes under changes outside its training distribution, against 76.9% for the policy without a layer."
+      "text": "Under LIBERO's own controller the hand moves about 0.22 of each commanded step per tick, and the policy learned this partial motion. Trained toward the command instead of the nominal execution, the same layer succeeds in 25.6% of episodes under changes outside its training distribution, against 76.9% for the policy without a layer. In a run that records the tracking error, it raises the error to 15.4 mm, against 6.8 mm without a layer and 6.0 mm for System 0.5."
      }
     },
     {
@@ -229,7 +229,15 @@
      "name": "What results does System 0.5 achieve?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "With pi0.5 on LIBERO, System 0.5 reaches 72.7% success on RoboStress against 56.6% best reported, and 68.1% on the J-PARC joint-fault benchmark against 61.7%. Over eight System 0 changes outside its training distribution it reaches 84.7%, above all four baselines (best 79.4%). On a real UR5e it lowers the tracking error from 9.0 to 1.2 mm at every one of 30 placements and completes 21 of 30 trials against 16 without a layer."
+      "text": "With pi0.5 on LIBERO, System 0.5 reaches 72.7% success on RoboStress against 56.6% best reported, and 68.1% on the J-PARC joint-fault benchmark against 61.7%. Over eight System 0 changes outside its training distribution it reaches 84.7%, above all four baselines (best 79.4%), and placed unchanged below OpenVLA-OFT and GR00T N1.7 it raises their success from 59.7 to 75.6% and from 59.4 to 80.0%. On a real UR5e it lowers the tracking error from 9.0 to 1.2 mm at every one of 30 placements and lowers the median task time from 114 to 54 s."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Does System 0.5 work with other VLA policies?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Yes, under the eight changes outside the training distribution. The layer trained on pi0.5 chunks, placed unchanged below OpenVLA-OFT and GR00T N1.7, raises their success from 59.7 to 75.6% and from 59.4 to 80.0% (one-sided bootstrap p < 0.001). Under the nominal System 0 their success does not fall (91.1 to 93.1% and 92.2 to 92.2% over 360 episodes)."
      }
     },
     {
@@ -237,7 +245,7 @@
      "name": "What are the limits of System 0.5?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "The layer assumes that its own measurements are not delayed; on the UR5e, whose measurements are late, the second layer is trained with the measurement lag varied. On the UR5e it lowers the tracking error at every one of 30 placements and completes 21 of 30 trials against 16 without a layer (one-sided sign test p = 0.063); the change on that arm shortens every step without changing its direction, so its measured cost is time. Under joint range limits and a joint lock, where no command can produce part of the motion, System 0.5 matches J-PARC within one point."
+      "text": "The layer assumes that its own measurements are not delayed; on the UR5e, whose measurements are late, the second layer is trained with the measurement lag varied. On the UR5e it lowers the tracking error at every one of 30 placements and completes 21 of 30 trials against 16 without a layer (one-sided sign test p = 0.063); the change on that arm shortens every step without changing its direction, so its measured cost is time. Under a joint range limit or a lock, where no command can produce part of the motion, System 0.5 improves on base by 3.5 to 7.6 points, against 17.5 to 18.0 points under joint friction."
      }
     },
     {
@@ -253,8 +261,8 @@
   {
    "@type": "VideoObject",
    "@id": "https://devsangho.github.io/System0.5-public/#ur5e-placement-001",
-   "name": "UR5e placement 1: unit gain, online gain calibrator and System 0.5 side by side",
-   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: unit gain on the left, the online gain calibrator in the middle and System 0.5 on the right.",
+   "name": "UR5e placement 1: pass-through, online gain calibrator and System 0.5 side by side",
+   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: pass-through on the left, the online gain calibrator in the middle and System 0.5 on the right.",
    "contentUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-001.mp4",
    "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-001.jpg",
    "uploadDate": "2026-11-23"
@@ -262,8 +270,8 @@
   {
    "@type": "VideoObject",
    "@id": "https://devsangho.github.io/System0.5-public/#ur5e-placement-002",
-   "name": "UR5e placement 2: unit gain, online gain calibrator and System 0.5 side by side",
-   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: unit gain on the left, the online gain calibrator in the middle and System 0.5 on the right.",
+   "name": "UR5e placement 2: pass-through, online gain calibrator and System 0.5 side by side",
+   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: pass-through on the left, the online gain calibrator in the middle and System 0.5 on the right.",
    "contentUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-002.mp4",
    "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-002.jpg",
    "uploadDate": "2026-11-23"
@@ -271,8 +279,8 @@
   {
    "@type": "VideoObject",
    "@id": "https://devsangho.github.io/System0.5-public/#ur5e-placement-003",
-   "name": "UR5e placement 3: unit gain, online gain calibrator and System 0.5 side by side",
-   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: unit gain on the left, the online gain calibrator in the middle and System 0.5 on the right.",
+   "name": "UR5e placement 3: pass-through, online gain calibrator and System 0.5 side by side",
+   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: pass-through on the left, the online gain calibrator in the middle and System 0.5 on the right.",
    "contentUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-003.mp4",
    "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-003.jpg",
    "uploadDate": "2026-11-23"
@@ -280,8 +288,8 @@
   {
    "@type": "VideoObject",
    "@id": "https://devsangho.github.io/System0.5-public/#ur5e-placement-004",
-   "name": "UR5e placement 4: unit gain, online gain calibrator and System 0.5 side by side",
-   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: unit gain on the left, the online gain calibrator in the middle and System 0.5 on the right.",
+   "name": "UR5e placement 4: pass-through, online gain calibrator and System 0.5 side by side",
+   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: pass-through on the left, the online gain calibrator in the middle and System 0.5 on the right.",
    "contentUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-004.mp4",
    "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-004.jpg",
    "uploadDate": "2026-11-23"
@@ -289,8 +297,8 @@
   {
    "@type": "VideoObject",
    "@id": "https://devsangho.github.io/System0.5-public/#ur5e-placement-005",
-   "name": "UR5e placement 5: unit gain, online gain calibrator and System 0.5 side by side",
-   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: unit gain on the left, the online gain calibrator in the middle and System 0.5 on the right.",
+   "name": "UR5e placement 5: pass-through, online gain calibrator and System 0.5 side by side",
+   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: pass-through on the left, the online gain calibrator in the middle and System 0.5 on the right.",
    "contentUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-005.mp4",
    "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-005.jpg",
    "uploadDate": "2026-11-23"
@@ -298,8 +306,8 @@
   {
    "@type": "VideoObject",
    "@id": "https://devsangho.github.io/System0.5-public/#ur5e-placement-006",
-   "name": "UR5e placement 6: unit gain, online gain calibrator and System 0.5 side by side",
-   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: unit gain on the left, the online gain calibrator in the middle and System 0.5 on the right.",
+   "name": "UR5e placement 6: pass-through, online gain calibrator and System 0.5 side by side",
+   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: pass-through on the left, the online gain calibrator in the middle and System 0.5 on the right.",
    "contentUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-006.mp4",
    "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-006.jpg",
    "uploadDate": "2026-11-23"
@@ -307,8 +315,8 @@
   {
    "@type": "VideoObject",
    "@id": "https://devsangho.github.io/System0.5-public/#ur5e-placement-007",
-   "name": "UR5e placement 7: unit gain, online gain calibrator and System 0.5 side by side",
-   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: unit gain on the left, the online gain calibrator in the middle and System 0.5 on the right.",
+   "name": "UR5e placement 7: pass-through, online gain calibrator and System 0.5 side by side",
+   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: pass-through on the left, the online gain calibrator in the middle and System 0.5 on the right.",
    "contentUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-007.mp4",
    "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-007.jpg",
    "uploadDate": "2026-11-23"
@@ -316,8 +324,8 @@
   {
    "@type": "VideoObject",
    "@id": "https://devsangho.github.io/System0.5-public/#ur5e-placement-008",
-   "name": "UR5e placement 8: unit gain, online gain calibrator and System 0.5 side by side",
-   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: unit gain on the left, the online gain calibrator in the middle and System 0.5 on the right.",
+   "name": "UR5e placement 8: pass-through, online gain calibrator and System 0.5 side by side",
+   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: pass-through on the left, the online gain calibrator in the middle and System 0.5 on the right.",
    "contentUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-008.mp4",
    "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-008.jpg",
    "uploadDate": "2026-11-23"
@@ -325,8 +333,8 @@
   {
    "@type": "VideoObject",
    "@id": "https://devsangho.github.io/System0.5-public/#ur5e-placement-009",
-   "name": "UR5e placement 9: unit gain, online gain calibrator and System 0.5 side by side",
-   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: unit gain on the left, the online gain calibrator in the middle and System 0.5 on the right.",
+   "name": "UR5e placement 9: pass-through, online gain calibrator and System 0.5 side by side",
+   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: pass-through on the left, the online gain calibrator in the middle and System 0.5 on the right.",
    "contentUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-009.mp4",
    "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-009.jpg",
    "uploadDate": "2026-11-23"
@@ -334,8 +342,8 @@
   {
    "@type": "VideoObject",
    "@id": "https://devsangho.github.io/System0.5-public/#ur5e-placement-010",
-   "name": "UR5e placement 10: unit gain, online gain calibrator and System 0.5 side by side",
-   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: unit gain on the left, the online gain calibrator in the middle and System 0.5 on the right.",
+   "name": "UR5e placement 10: pass-through, online gain calibrator and System 0.5 side by side",
+   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: pass-through on the left, the online gain calibrator in the middle and System 0.5 on the right.",
    "contentUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-010.mp4",
    "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-010.jpg",
    "uploadDate": "2026-11-23"
@@ -343,8 +351,8 @@
   {
    "@type": "VideoObject",
    "@id": "https://devsangho.github.io/System0.5-public/#ur5e-placement-011",
-   "name": "UR5e placement 11: unit gain, online gain calibrator and System 0.5 side by side",
-   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: unit gain on the left, the online gain calibrator in the middle and System 0.5 on the right.",
+   "name": "UR5e placement 11: pass-through, online gain calibrator and System 0.5 side by side",
+   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: pass-through on the left, the online gain calibrator in the middle and System 0.5 on the right.",
    "contentUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-011.mp4",
    "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-011.jpg",
    "uploadDate": "2026-11-23"
@@ -352,8 +360,8 @@
   {
    "@type": "VideoObject",
    "@id": "https://devsangho.github.io/System0.5-public/#ur5e-placement-012",
-   "name": "UR5e placement 12: unit gain, online gain calibrator and System 0.5 side by side",
-   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: unit gain on the left, the online gain calibrator in the middle and System 0.5 on the right.",
+   "name": "UR5e placement 12: pass-through, online gain calibrator and System 0.5 side by side",
+   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: pass-through on the left, the online gain calibrator in the middle and System 0.5 on the right.",
    "contentUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-012.mp4",
    "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-012.jpg",
    "uploadDate": "2026-11-23"
@@ -361,8 +369,8 @@
   {
    "@type": "VideoObject",
    "@id": "https://devsangho.github.io/System0.5-public/#ur5e-placement-013",
-   "name": "UR5e placement 13: unit gain, online gain calibrator and System 0.5 side by side",
-   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: unit gain on the left, the online gain calibrator in the middle and System 0.5 on the right.",
+   "name": "UR5e placement 13: pass-through, online gain calibrator and System 0.5 side by side",
+   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: pass-through on the left, the online gain calibrator in the middle and System 0.5 on the right.",
    "contentUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-013.mp4",
    "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-013.jpg",
    "uploadDate": "2026-11-23"
@@ -370,8 +378,8 @@
   {
    "@type": "VideoObject",
    "@id": "https://devsangho.github.io/System0.5-public/#ur5e-placement-014",
-   "name": "UR5e placement 14: unit gain, online gain calibrator and System 0.5 side by side",
-   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: unit gain on the left, the online gain calibrator in the middle and System 0.5 on the right.",
+   "name": "UR5e placement 14: pass-through, online gain calibrator and System 0.5 side by side",
+   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: pass-through on the left, the online gain calibrator in the middle and System 0.5 on the right.",
    "contentUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-014.mp4",
    "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-014.jpg",
    "uploadDate": "2026-11-23"
@@ -379,8 +387,8 @@
   {
    "@type": "VideoObject",
    "@id": "https://devsangho.github.io/System0.5-public/#ur5e-placement-015",
-   "name": "UR5e placement 15: unit gain, online gain calibrator and System 0.5 side by side",
-   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: unit gain on the left, the online gain calibrator in the middle and System 0.5 on the right.",
+   "name": "UR5e placement 15: pass-through, online gain calibrator and System 0.5 side by side",
+   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: pass-through on the left, the online gain calibrator in the middle and System 0.5 on the right.",
    "contentUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-015.mp4",
    "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-015.jpg",
    "uploadDate": "2026-11-23"
@@ -388,8 +396,8 @@
   {
    "@type": "VideoObject",
    "@id": "https://devsangho.github.io/System0.5-public/#ur5e-placement-016",
-   "name": "UR5e placement 16: unit gain, online gain calibrator and System 0.5 side by side",
-   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: unit gain on the left, the online gain calibrator in the middle and System 0.5 on the right.",
+   "name": "UR5e placement 16: pass-through, online gain calibrator and System 0.5 side by side",
+   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: pass-through on the left, the online gain calibrator in the middle and System 0.5 on the right.",
    "contentUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-016.mp4",
    "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-016.jpg",
    "uploadDate": "2026-11-23"
@@ -397,8 +405,8 @@
   {
    "@type": "VideoObject",
    "@id": "https://devsangho.github.io/System0.5-public/#ur5e-placement-017",
-   "name": "UR5e placement 17: unit gain, online gain calibrator and System 0.5 side by side",
-   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: unit gain on the left, the online gain calibrator in the middle and System 0.5 on the right.",
+   "name": "UR5e placement 17: pass-through, online gain calibrator and System 0.5 side by side",
+   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: pass-through on the left, the online gain calibrator in the middle and System 0.5 on the right.",
    "contentUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-017.mp4",
    "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-017.jpg",
    "uploadDate": "2026-11-23"
@@ -406,8 +414,8 @@
   {
    "@type": "VideoObject",
    "@id": "https://devsangho.github.io/System0.5-public/#ur5e-placement-018",
-   "name": "UR5e placement 18: unit gain, online gain calibrator and System 0.5 side by side",
-   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: unit gain on the left, the online gain calibrator in the middle and System 0.5 on the right.",
+   "name": "UR5e placement 18: pass-through, online gain calibrator and System 0.5 side by side",
+   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: pass-through on the left, the online gain calibrator in the middle and System 0.5 on the right.",
    "contentUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-018.mp4",
    "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-018.jpg",
    "uploadDate": "2026-11-23"
@@ -415,8 +423,8 @@
   {
    "@type": "VideoObject",
    "@id": "https://devsangho.github.io/System0.5-public/#ur5e-placement-019",
-   "name": "UR5e placement 19: unit gain, online gain calibrator and System 0.5 side by side",
-   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: unit gain on the left, the online gain calibrator in the middle and System 0.5 on the right.",
+   "name": "UR5e placement 19: pass-through, online gain calibrator and System 0.5 side by side",
+   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: pass-through on the left, the online gain calibrator in the middle and System 0.5 on the right.",
    "contentUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-019.mp4",
    "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-019.jpg",
    "uploadDate": "2026-11-23"
@@ -424,8 +432,8 @@
   {
    "@type": "VideoObject",
    "@id": "https://devsangho.github.io/System0.5-public/#ur5e-placement-020",
-   "name": "UR5e placement 20: unit gain, online gain calibrator and System 0.5 side by side",
-   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: unit gain on the left, the online gain calibrator in the middle and System 0.5 on the right.",
+   "name": "UR5e placement 20: pass-through, online gain calibrator and System 0.5 side by side",
+   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: pass-through on the left, the online gain calibrator in the middle and System 0.5 on the right.",
    "contentUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-020.mp4",
    "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-020.jpg",
    "uploadDate": "2026-11-23"
@@ -433,8 +441,8 @@
   {
    "@type": "VideoObject",
    "@id": "https://devsangho.github.io/System0.5-public/#ur5e-placement-021",
-   "name": "UR5e placement 21: unit gain, online gain calibrator and System 0.5 side by side",
-   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: unit gain on the left, the online gain calibrator in the middle and System 0.5 on the right.",
+   "name": "UR5e placement 21: pass-through, online gain calibrator and System 0.5 side by side",
+   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: pass-through on the left, the online gain calibrator in the middle and System 0.5 on the right.",
    "contentUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-021.mp4",
    "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-021.jpg",
    "uploadDate": "2026-11-23"
@@ -442,8 +450,8 @@
   {
    "@type": "VideoObject",
    "@id": "https://devsangho.github.io/System0.5-public/#ur5e-placement-022",
-   "name": "UR5e placement 22: unit gain, online gain calibrator and System 0.5 side by side",
-   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: unit gain on the left, the online gain calibrator in the middle and System 0.5 on the right.",
+   "name": "UR5e placement 22: pass-through, online gain calibrator and System 0.5 side by side",
+   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: pass-through on the left, the online gain calibrator in the middle and System 0.5 on the right.",
    "contentUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-022.mp4",
    "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-022.jpg",
    "uploadDate": "2026-11-23"
@@ -451,8 +459,8 @@
   {
    "@type": "VideoObject",
    "@id": "https://devsangho.github.io/System0.5-public/#ur5e-placement-023",
-   "name": "UR5e placement 23: unit gain, online gain calibrator and System 0.5 side by side",
-   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: unit gain on the left, the online gain calibrator in the middle and System 0.5 on the right.",
+   "name": "UR5e placement 23: pass-through, online gain calibrator and System 0.5 side by side",
+   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: pass-through on the left, the online gain calibrator in the middle and System 0.5 on the right.",
    "contentUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-023.mp4",
    "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-023.jpg",
    "uploadDate": "2026-11-23"
@@ -460,8 +468,8 @@
   {
    "@type": "VideoObject",
    "@id": "https://devsangho.github.io/System0.5-public/#ur5e-placement-024",
-   "name": "UR5e placement 24: unit gain, online gain calibrator and System 0.5 side by side",
-   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: unit gain on the left, the online gain calibrator in the middle and System 0.5 on the right.",
+   "name": "UR5e placement 24: pass-through, online gain calibrator and System 0.5 side by side",
+   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: pass-through on the left, the online gain calibrator in the middle and System 0.5 on the right.",
    "contentUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-024.mp4",
    "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-024.jpg",
    "uploadDate": "2026-11-23"
@@ -469,8 +477,8 @@
   {
    "@type": "VideoObject",
    "@id": "https://devsangho.github.io/System0.5-public/#ur5e-placement-025",
-   "name": "UR5e placement 25: unit gain, online gain calibrator and System 0.5 side by side",
-   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: unit gain on the left, the online gain calibrator in the middle and System 0.5 on the right.",
+   "name": "UR5e placement 25: pass-through, online gain calibrator and System 0.5 side by side",
+   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: pass-through on the left, the online gain calibrator in the middle and System 0.5 on the right.",
    "contentUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-025.mp4",
    "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-025.jpg",
    "uploadDate": "2026-11-23"
@@ -478,8 +486,8 @@
   {
    "@type": "VideoObject",
    "@id": "https://devsangho.github.io/System0.5-public/#ur5e-placement-026",
-   "name": "UR5e placement 26: unit gain, online gain calibrator and System 0.5 side by side",
-   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: unit gain on the left, the online gain calibrator in the middle and System 0.5 on the right.",
+   "name": "UR5e placement 26: pass-through, online gain calibrator and System 0.5 side by side",
+   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: pass-through on the left, the online gain calibrator in the middle and System 0.5 on the right.",
    "contentUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-026.mp4",
    "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-026.jpg",
    "uploadDate": "2026-11-23"
@@ -487,8 +495,8 @@
   {
    "@type": "VideoObject",
    "@id": "https://devsangho.github.io/System0.5-public/#ur5e-placement-027",
-   "name": "UR5e placement 27: unit gain, online gain calibrator and System 0.5 side by side",
-   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: unit gain on the left, the online gain calibrator in the middle and System 0.5 on the right.",
+   "name": "UR5e placement 27: pass-through, online gain calibrator and System 0.5 side by side",
+   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: pass-through on the left, the online gain calibrator in the middle and System 0.5 on the right.",
    "contentUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-027.mp4",
    "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-027.jpg",
    "uploadDate": "2026-11-23"
@@ -496,8 +504,8 @@
   {
    "@type": "VideoObject",
    "@id": "https://devsangho.github.io/System0.5-public/#ur5e-placement-028",
-   "name": "UR5e placement 28: unit gain, online gain calibrator and System 0.5 side by side",
-   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: unit gain on the left, the online gain calibrator in the middle and System 0.5 on the right.",
+   "name": "UR5e placement 28: pass-through, online gain calibrator and System 0.5 side by side",
+   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: pass-through on the left, the online gain calibrator in the middle and System 0.5 on the right.",
    "contentUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-028.mp4",
    "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-028.jpg",
    "uploadDate": "2026-11-23"
@@ -505,8 +513,8 @@
   {
    "@type": "VideoObject",
    "@id": "https://devsangho.github.io/System0.5-public/#ur5e-placement-029",
-   "name": "UR5e placement 29: unit gain, online gain calibrator and System 0.5 side by side",
-   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: unit gain on the left, the online gain calibrator in the middle and System 0.5 on the right.",
+   "name": "UR5e placement 29: pass-through, online gain calibrator and System 0.5 side by side",
+   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: pass-through on the left, the online gain calibrator in the middle and System 0.5 on the right.",
    "contentUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-029.mp4",
    "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-029.jpg",
    "uploadDate": "2026-11-23"
@@ -514,8 +522,8 @@
   {
    "@type": "VideoObject",
    "@id": "https://devsangho.github.io/System0.5-public/#ur5e-placement-030",
-   "name": "UR5e placement 30: unit gain, online gain calibrator and System 0.5 side by side",
-   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: unit gain on the left, the online gain calibrator in the middle and System 0.5 on the right.",
+   "name": "UR5e placement 30: pass-through, online gain calibrator and System 0.5 side by side",
+   "description": "Three trials at one toy placement on a real UR5e, base camera, 4x real time on a shared clock: pass-through on the left, the online gain calibrator in the middle and System 0.5 on the right.",
    "contentUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-030.mp4",
    "thumbnailUrl": "https://devsangho.github.io/System0.5-public/static/videos/pair-030.jpg",
    "uploadDate": "2026-11-23"
@@ -527,7 +535,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400..600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="static/system05.css?v=20261125b">
+<link rel="stylesheet" href="static/system05.css?v=20261128">
 </head>
 <body>
 
@@ -556,8 +564,8 @@
     <div class="hero-copy">
       <h1 class="brand-hero" aria-label="System 0.5: Learning to Restore Nominal VLA Execution Under Unknown Low-Level Changes"><span aria-hidden="true">System&nbsp;<span class="num">0.5</span></span></h1>
       <p class="full-title">Learning to Restore Nominal VLA Execution Under Unknown Low-Level Changes</p>
-      <p class="hero-claim">A VLA policy learns how its chunks move the arm under the System&nbsp;0 that recorded its demonstrations; when controllers, gains or joints change, the same chunks move the arm elsewhere.
-      <b>Following the command is not the fix.</b> <span class="mark">System 0.5</span> identifies the current System&nbsp;0 from its own history and restores each chunk&rsquo;s <b>nominal execution</b>.</p>
+      <p class="hero-claim">A VLA policy is trained under one controller and robot body, its nominal System&nbsp;0. When System&nbsp;0 changes, success falls as the <b>tracking error against the nominal execution</b> grows.
+      <span class="mark">System 0.5</span> identifies the current System&nbsp;0 from its own history and corrects each command toward that execution. <b>Trained to follow the command instead, the same layer lowers success.</b></p>
       <div>
         <p class="authors"><span><a href="https://www.devsangho.com" target="_blank" rel="noopener">Sangho Yun</a><sup>1</sup></span>, <span>Minsoo Kim<sup>2</sup></span>, and <span>Hwanjo Yu<sup>1,2</sup></span></p>
         <p class="affil"><img src="static/postech_emblem.png" alt="POSTECH emblem">POSTECH, <a href="https://sites.google.com/view/postechdi" target="_blank" rel="noopener">DI Lab</a></p>
@@ -571,7 +579,7 @@
         <button class="btn disabled" type="button" disabled>Code (soon)</button>
         <a class="btn" href="#bibtex">BibTeX</a>
       </div>
-      <p class="notes">Animations marked <em>schematic</em> illustrate the mechanism. Every number on this page comes from the manuscript, and the LIBERO replay and the UR5e clips are recorded data.</p>
+      <p class="notes">Animations marked <em>schematic</em> illustrate the mechanism. Every number on this page comes from the manuscript or the runs behind it, and the LIBERO replay and the UR5e clips are recorded data.</p>
     </div>
     <div class="hero-art" aria-hidden="true">
       <svg class="orbits" viewBox="0 0 560 500" fill="none">
@@ -728,7 +736,7 @@
           <div class="eq">Ã = Ā<sub>0</sub> + Σ<sub>l=1..4</sub> α<sub>l</sub>(Ā<sub>l</sub> − Ā<sub>0</sub>)</div>
           <div class="eq">u<sup>p</sup> = (I + δK) Ã<sup>p</sup> + r<sup>p</sup> &nbsp;&nbsp; u<sup>R</sup> = (1 + δk) ⊙ Ã<sup>R</sup> + r<sup>R</sup></div>
           <p class="cap" id="head-cap"></p>
-          <p class="cap">An unstructured head tracks and succeeds as well as this one; the structure makes the correction readable. The learned lead mix advances the plan by 0.1 to 1.9 ticks for command delays of one to four ticks.</p>
+          <p class="cap">Zero outputs give pass-through, and a head that directly outputs the correction reaches a similar error. Under a command frame rotated by ±30°, the off-diagonal entries of δK reach 0.29 to 0.47, where the closed-form inverse has 0.50, and the head&rsquo;s lead grows with the delay.</p>
         </div>
       </div>
     </div>
@@ -791,7 +799,7 @@
         <div class="chart-scroll"><svg id="ext-chart" class="chart" viewBox="0 0 1000 560" role="img" aria-label="Success per scenario: our base, best reported method, System 0.5"></svg></div>
         <div class="legend"><span><i class="l-base-fill"></i>π<sub>0.5</sub> base (our reimplementation)</span><span><i class="l-base-2"></i><span id="ext-best-name">SC-VLA</span> (as reported)</span><span><i class="l-ours-fill"></i>System 0.5</span></div>
       </div>
-      <p class="cap">Our episodes per cell: 800 (System 0.5: 2,400) on RoboStress, 1,400 (200 per joint) on J-PARC. Under range limits and the lock, where no command can produce part of the motion, System 0.5 matches J-PARC within one point.</p>
+      <p class="cap">Our episodes per cell: 800 (System 0.5: 2,400) on RoboStress, 1,400 (200 per joint) on J-PARC. System 0.5 improves on base by 17.5 to 18.0 points under joint friction, which a larger command overcomes, and by 3.5 to 7.6 points under a range limit or a lock, which no command overcomes.</p>
     </div>
 
     <div class="two-col even block">
@@ -803,11 +811,27 @@
         <p class="cap">Mean success over 8 changes × 40 episodes. The run shown, fixed before testing, is the lowest of ten training seeds (84.7 to 90.6%), all above the best baseline.</p>
       </div>
       <div class="reveal">
-        <div class="label">Tracking predicts success</div>
-        <h3 class="sub">Lower tracking error, higher success</h3>
-        <p class="text">On the eight changes, across six layer variants, pass-through and the four baselines, a lower mean tracking error against the nominal execution comes with higher success in the same episodes.</p>
-        <div class="chart-card"><div class="controls"><span class="schematic-tag measured-tag">measured · LIBERO</span><span class="spacer"></span><button class="pill-btn" type="button" id="scatter-replay">↻ Replay</button></div><div class="chart-title"><b>Tracking error vs success</b><span>mm · % · 11 methods</span></div><div class="chart-scroll narrow"><svg id="scatter" class="chart" viewBox="0 0 560 400" role="img" aria-label="Scatter of tracking error against success for eleven methods"></svg></div></div>
-        <p class="cap">Rerun that records the tracking error, 8 changes × 40 episodes per point. Hover or tap a point for its name.</p>
+        <div class="label">Other policies</div>
+        <h3 class="sub">The same layer below OpenVLA-OFT and GR00T&nbsp;N1.7</h3>
+        <p class="text">The layer, trained on chunks of π<sub>0.5</sub>, was placed unchanged below two other VLAs. Under the same eight changes it raises their success, and under the nominal System&nbsp;0 success does not fall (OpenVLA-OFT 91.1 → 93.1%, GR00T&nbsp;N1.7 92.2 → 92.2%, 360 episodes each).</p>
+        <div class="chart-card"><div class="controls"><span class="schematic-tag measured-tag">measured · LIBERO</span><span class="spacer"></span><button class="pill-btn" type="button" id="pol-replay">↻ Replay</button></div><div class="chart-title"><b>Success outside the training distribution</b><span>% · 8 × 40 episodes</span></div><div class="hb" id="pol-bars"></div></div>
+        <p class="cap">Pass-through and System 0.5 below each policy, one-sided bootstrap p &lt; 0.001 for both. The layer lowers the tracking error in the same 18 of the 24 sweep conditions as with π<sub>0.5</sub>.</p>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="label reveal">Tracking error and success</div>
+      <h3 class="sub reveal">Success rises where the error falls</h3>
+      <p class="text reveal">Over the eight changes at three strengths each (24 conditions, 2,000 episodes), System&nbsp;0.5 changes the error while System&nbsp;0 stays fixed. Success rises more where it lowers the error more, and over the 11 methods success falls as the error rises. The layer trained toward the command reaches 15.4&nbsp;mm and 27.8%, against 6.0&nbsp;mm and 87.8% for System&nbsp;0.5 and 6.8&nbsp;mm and 76.2% for pass-through. The two layers differ only in the reference.</p>
+      <div class="two-col even">
+        <div class="reveal">
+          <div class="chart-card"><div class="controls"><span class="schematic-tag measured-tag">measured · LIBERO</span><span class="spacer"></span><button class="pill-btn" type="button" id="sweep-replay">↻ Replay</button></div><div class="chart-title"><b>Change of error vs change of success</b><span>% · points · 24 conditions</span></div><div class="chart-scroll narrow"><svg id="sweep" class="chart" viewBox="0 0 560 400" role="img" aria-label="For 24 conditions, the change of tracking error against the change of success that System 0.5 makes relative to pass-through"></svg></div></div>
+          <p class="cap">System 0.5 minus pass-through on the same 40 scenes per condition. Spearman ρ = −0.51, one-sided permutation p = 0.007. Success rises by 17.3 points on average where the error falls by at least 10%, by 8.5 where it falls less and by 2.1 where it rises. Points beyond +60% are drawn at the edge with their value.</p>
+        </div>
+        <div class="reveal">
+          <div class="chart-card"><div class="controls"><span class="schematic-tag measured-tag">measured · LIBERO</span><span class="spacer"></span><button class="pill-btn" type="button" id="scatter-replay">↻ Replay</button></div><div class="chart-title"><b>Tracking error vs success</b><span>mm · % · 11 methods</span></div><div class="chart-scroll narrow"><svg id="scatter" class="chart" viewBox="0 0 560 400" role="img" aria-label="Scatter of tracking error against success for eleven methods"></svg></div></div>
+          <p class="cap">Run of all 11 methods on the eight changes (3,640 episodes). Error: mean distance of the hand from its nominal execution over the first 3 s of an episode. Spearman ρ = −0.93, and −0.90 without the command reference. Hover or tap a point for its name.</p>
+        </div>
       </div>
     </div>
   </div>
@@ -819,19 +843,19 @@
     <div class="sec-head reveal">
       <div>
         <div class="label"><span class="no">07</span>Real robot</div>
-        <h2>UR5e: 9.0 → 1.2&nbsp;mm</h2>
+        <h2>UR5e: 9.0 → 1.2&nbsp;mm, Half the Task Time</h2>
       </div>
-      <p class="lede">π<sub>0.5</sub> fine-tuned on 29 demonstrations sends one command every 0.29 s. Without a layer, the robot executes only <b>44% of each commanded step</b>, because each pose it receives is the step added to a pose read 0.26 s earlier. A second layer, trained with the same losses on a kinematic simulator of this arm, runs at unit gain against an online gain calibrator and no layer, in rotating order at 30 toy placements.</p>
+      <p class="lede">π<sub>0.5</sub> fine-tuned on 29 demonstrations sends one command every 0.29 s. Without a layer, the robot executes only <b>44% of each commanded step</b>, because each pose it receives is the step added to a pose read 0.26 s earlier. A second layer, trained with the same losses on a kinematic simulator of this arm, runs against pass-through and an online gain calibrator, in rotating order at 30 toy placements. The median task time falls with the error, from 114 s to 62 s with the calibrator and 54 s with System 0.5.</p>
     </div>
     <div class="kpis reveal" id="hw-kpis"></div>
     <div class="two-col even">
       <div class="reveal">
-        <div class="chart-card"><div class="controls"><span class="schematic-tag measured-tag">measured · UR5e</span><span class="spacer"></span><button class="pill-btn" type="button" id="dumb-replay">↻ Replay</button></div><div class="chart-title"><b>Tracking error per placement</b><span>mm · 30 placements</span></div><div class="chart-scroll narrow"><svg id="hw-dumb" class="chart" viewBox="0 0 560 520" role="img" aria-label="Tracking error at each of 30 placements for unit gain, the calibrator and System 0.5"></svg></div></div>
+        <div class="chart-card"><div class="controls"><span class="schematic-tag measured-tag">measured · UR5e</span><span class="spacer"></span><button class="pill-btn" type="button" id="dumb-replay">↻ Replay</button></div><div class="chart-title"><b>Tracking error per placement</b><span>mm · 30 placements</span></div><div class="chart-scroll narrow"><svg id="hw-dumb" class="chart" viewBox="0 0 560 520" role="img" aria-label="Tracking error at each of 30 placements for pass-through, the calibrator and System 0.5"></svg></div></div>
         <p class="cap">Hand distance from the nominal execution, averaged over the chunks in free motion. One-sided paired Wilcoxon test fixed before the experiment, p = 9×10<sup>−10</sup>; against the calibrator, two-sided p = 4×10<sup>−6</sup>.</p>
       </div>
       <div class="reveal">
         <div class="chart-card"><div class="controls"><span class="schematic-tag measured-tag">measured · UR5e</span><span class="spacer"></span><button class="pill-btn" type="button" id="cdf-replay">↻ Replay</button></div><div class="chart-title"><b>Completed trials over time</b><span>of 30 per method · 120 s limit</span></div><div class="chart-scroll narrow"><svg id="hw-cdf" class="chart" viewBox="0 0 560 520" role="img" aria-label="Cumulative completed trials against time for three methods"></svg></div></div>
-        <p class="cap">Trials completed within each time, of 30 per method; 120 s limit. Within 60 s, unit gain completes none, the calibrator 15 and System 0.5 18. At 120 s: 16, 16 and 21. The operator labeled each trial; all 90 labels match the logged gripper opening in the release region.</p>
+        <p class="cap">Trials completed within each time, of 30 per method; 120 s limit. Within 60 s, pass-through completes none, the calibrator 15 and System 0.5 18. At 120 s: 16, 16 and 21. The operator labeled each trial; all 90 labels match the logged gripper opening in the release region.</p>
       </div>
     </div>
 
@@ -839,7 +863,7 @@
       <div class="label reveal">All 90 hardware trials</div>
       <h3 class="sub reveal">Same placement, three methods, one clock</h3>
       <p class="text reveal">Each clip shows the three trials at one placement side by side from the base camera, at 4× real time on a shared clock. A trial that ends freezes under its outcome. Click a clip to enlarge.</p>
-      <div class="controls"><span class="schematic-tag measured-tag">recorded · base camera · 4×</span><div class="seg" id="wall-filter" role="group" aria-label="Filter clips"><button type="button" data-f="all" class="on" aria-pressed="true">All 30</button><button type="button" data-f="three" aria-pressed="false">All three succeed</button><button type="button" data-f="gain" aria-pressed="false">System 0.5 succeeds, unit gain fails</button><button type="button" data-f="fail" aria-pressed="false">System 0.5 fails</button></div></div>
+      <div class="controls"><span class="schematic-tag measured-tag">recorded · base camera · 4×</span><div class="seg" id="wall-filter" role="group" aria-label="Filter clips"><button type="button" data-f="all" class="on" aria-pressed="true">All 30</button><button type="button" data-f="three" aria-pressed="false">All three succeed</button><button type="button" data-f="gain" aria-pressed="false">System 0.5 succeeds, pass-through fails</button><button type="button" data-f="fail" aria-pressed="false">System 0.5 fails</button></div></div>
       <div class="wall collapsed" id="wall"></div>
       <div class="wall-more"><button class="pill-btn" type="button" id="wall-more">Show all 30 placements</button></div>
     </div>
@@ -858,11 +882,12 @@
     <div class="faq">
       <div class="card faq-card reveal"><h3 class="sub">What is System 0.5?</h3><p>System 0.5 is a learned layer between a frozen vision-language-action (VLA) policy and System 0, the controller and the robot body. Once per 50 ms tick it corrects the arm part of each command so that every action chunk moves the arm as it would under the System 0 that recorded the policy's demonstrations.</p></div>
       <div class="card faq-card reveal"><h3 class="sub">What is the nominal execution of a chunk?</h3><p>The nominal execution is the trajectory that the nominal System 0, the one under which the demonstrations were recorded, would produce from the state where the chunk actually starts. It restarts from the actual state at every chunk, so the error one chunk leaves is not carried into the next.</p></div>
-      <div class="card faq-card reveal"><h3 class="sub">Why not make the arm follow the command?</h3><p>Under LIBERO's own controller the hand moves about 0.22 of each commanded step per tick, and the policy learned this partial motion. Trained toward the command instead of the nominal execution, the same layer succeeds in 25.6% of episodes under changes outside its training distribution, against 76.9% for the policy without a layer.</p></div>
+      <div class="card faq-card reveal"><h3 class="sub">Why not make the arm follow the command?</h3><p>Under LIBERO's own controller the hand moves about 0.22 of each commanded step per tick, and the policy learned this partial motion. Trained toward the command instead of the nominal execution, the same layer succeeds in 25.6% of episodes under changes outside its training distribution, against 76.9% for the policy without a layer. In a run that records the tracking error, it raises the error to 15.4 mm, against 6.8 mm without a layer and 6.0 mm for System 0.5.</p></div>
       <div class="card faq-card reveal"><h3 class="sub">Does System 0.5 retrain the VLA or need the parameters of System 0?</h3><p>No. The VLA stays frozen, and the layer never receives the parameters of System 0. It identifies the current System 0 from its own history of commands and measured motion, using recursive least-squares statistics and an encoder that summarizes them as a 64-dimensional vector.</p></div>
       <div class="card faq-card reveal"><h3 class="sub">How is System 0.5 trained?</h3><p>In simulation, by gradients through a learned forward model and without reinforcement learning. Training copies the simulator state at each chunk's start to record the nominal execution, and the forward model's sensitivity turns other commands into the change of motion they would cause. Training replays recorded π<sub>0.5</sub> chunks and never queries the VLA. At deployment one tick takes about 1 ms on one CPU thread.</p></div>
-      <div class="card faq-card reveal"><h3 class="sub">What results does System 0.5 achieve?</h3><p>With π<sub>0.5</sub> on LIBERO, System 0.5 reaches 72.7% success on RoboStress against 56.6% best reported, and 68.1% on the J-PARC joint-fault benchmark against 61.7%. Over eight System 0 changes outside its training distribution it reaches 84.7%, above all four baselines (best 79.4%). On a real UR5e it lowers the tracking error from 9.0 to 1.2 mm at every one of 30 placements and completes 21 of 30 trials against 16 without a layer.</p></div>
-      <div class="card faq-card reveal"><h3 class="sub">What are the limits of System 0.5?</h3><p>The layer assumes that its own measurements are not delayed; on the UR5e, whose measurements are late, the second layer is trained with the measurement lag varied. On the UR5e it lowers the tracking error at every one of 30 placements and completes 21 of 30 trials against 16 without a layer (one-sided sign test p = 0.063); the change on that arm shortens every step without changing its direction, so its measured cost is time. Under joint range limits and a joint lock, where no command can produce part of the motion, System 0.5 matches J-PARC within one point.</p></div>
+      <div class="card faq-card reveal"><h3 class="sub">What results does System 0.5 achieve?</h3><p>With π<sub>0.5</sub> on LIBERO, System 0.5 reaches 72.7% success on RoboStress against 56.6% best reported, and 68.1% on the J-PARC joint-fault benchmark against 61.7%. Over eight System 0 changes outside its training distribution it reaches 84.7%, above all four baselines (best 79.4%), and placed unchanged below OpenVLA-OFT and GR00T N1.7 it raises their success from 59.7 to 75.6% and from 59.4 to 80.0%. On a real UR5e it lowers the tracking error from 9.0 to 1.2 mm at every one of 30 placements and lowers the median task time from 114 to 54 s.</p></div>
+      <div class="card faq-card reveal"><h3 class="sub">Does System 0.5 work with other VLA policies?</h3><p>Yes, under the eight changes outside the training distribution. The layer trained on π<sub>0.5</sub> chunks, placed unchanged below OpenVLA-OFT and GR00T N1.7, raises their success from 59.7 to 75.6% and from 59.4 to 80.0% (one-sided bootstrap p &lt; 0.001). Under the nominal System 0 their success does not fall (91.1 to 93.1% and 92.2 to 92.2% over 360 episodes).</p></div>
+      <div class="card faq-card reveal"><h3 class="sub">What are the limits of System 0.5?</h3><p>The layer assumes that its own measurements are not delayed; on the UR5e, whose measurements are late, the second layer is trained with the measurement lag varied. On the UR5e it lowers the tracking error at every one of 30 placements and completes 21 of 30 trials against 16 without a layer (one-sided sign test p = 0.063); the change on that arm shortens every step without changing its direction, so its measured cost is time. Under a joint range limit or a lock, where no command can produce part of the motion, System 0.5 improves on base by 3.5 to 7.6 points, against 17.5 to 18.0 points under joint friction.</p></div>
       <div class="card faq-card reveal"><h3 class="sub">Are the paper and code available?</h3><p>The paper is under review and the code will be released upon publication. This page shows the method, the results and all 90 UR5e hardware trials.</p></div>
     </div>
   </div>
@@ -876,13 +901,13 @@
       <ul class="meta-list">
         <li><span>Venue</span><b>RSS 2027 (under review)</b></li>
         <li><span>Simulation</span><b>LIBERO · RoboStress · J-PARC</b></li>
-        <li><span>Policy</span><b>π<sub>0.5</sub> (frozen)</b></li>
+        <li><span>Policies</span><b>π<sub>0.5</sub> · OpenVLA-OFT · GR00T&nbsp;N1.7 (frozen)</b></li>
         <li><span>Hardware</span><b>UR5e</b></li>
       </ul>
     </div>
     <div class="prose reveal">
-      <p>A vision-language-action (VLA) policy outputs action chunks that System 0 (the controller and the robot body) turns into motion. System 0 rarely stays as it was when the demonstrations were recorded. Robots run under other controllers and gains, and joint faults can halve the success of π<sub>0.5</sub>. A remedy that covers every change is to make the arm follow the command. In LIBERO, however, the demonstrations' System 0 moves the hand about a fifth of each commanded displacement per tick, and the policy learned this motion, not the command. We present <b class="mark">System 0.5</b>, a layer between a frozen VLA and System 0. The layer recovers success by learning to restore each chunk's nominal execution, the motion the demonstrations' System 0 would produce from where the chunk starts. The layer identifies the current System 0 from its own history of commands and measured motion. It is trained by gradients through a learned forward model, without reinforcement learning. With π<sub>0.5</sub> on LIBERO, <b class="mark">System 0.5</b> exceeds the best reported success on two joint-fault benchmarks, reaching 72.7% against 56.6% on RoboStress. On average over eight changes outside its training distribution, it outperforms all four baselines. On a real UR5e, a second layer trained with the same losses lowers the tracking error from 9.0 to 1.2 mm at every one of 30 placements and completes 21 of the 30 trials against 16 without a layer.</p>
-    <p class="scope"><b>Scope.</b> Simulation tests use the public π<sub>0.5</sub> LIBERO checkpoint; the eight changes outside the training distribution run on the ten LIBERO-Spatial tasks. On the UR5e, the change to System&nbsp;0 shortens every commanded step without changing its direction, and the success difference (21 vs 16 of 30 trials) gives p&nbsp;=&nbsp;0.063 in the one-sided sign test fixed before the experiment.</p>
+      <p>A vision-language-action (VLA) policy is trained under one controller and robot body, its nominal System 0, but System 0 changes in use: joint faults lower the LIBERO success of π<sub>0.5</sub> from above 95% to below 57%. We trace such drops to the tracking error against the nominal execution, the motion that the nominal System 0 would produce for the same action chunk from the same state. We present <b>System 0.5</b>, a layer below a frozen VLA that identifies the current System 0 from its own history and corrects each command toward the nominal execution. It is trained on this error through a learned forward model, without any task reward. Under eight changes of System 0 absent from training, success rises more where System 0.5 lowers the error more. The same layer trained to follow the command instead lowers success from 76.9 to 25.6%. System 0.5 outperforms four baselines under these changes and exceeds the best reported mean success on our reimplementations of two joint-fault benchmarks. Retrained for a real UR5e, it lowers the tracking error by 87% and more than halves the median task time.</p>
+    <p class="scope"><b>Scope.</b> Simulation tests use the public π<sub>0.5</sub> LIBERO checkpoint, and the layer trained on its chunks runs unchanged below OpenVLA-OFT and GR00T&nbsp;N1.7; the eight changes outside the training distribution run on the ten LIBERO-Spatial tasks. On the UR5e, the change to System&nbsp;0 shortens every commanded step without changing its direction, and the success difference (21 vs 16 of 30 trials) gives p&nbsp;=&nbsp;0.063 in the one-sided sign test fixed before the experiment.</p>
     </div>
   </div>
 </section>
@@ -927,8 +952,8 @@
   <div class="lb-bar" id="lb-t"></div>
 </div>
 
-<script src="static/data/system05_data.js?v=20261125b"></script>
-<script src="static/videos/manifest.js?v=20261125b"></script>
-<script src="static/system05.js?v=20261125b"></script>
+<script src="static/data/system05_data.js?v=20261128"></script>
+<script src="static/videos/manifest.js?v=20261128"></script>
+<script src="static/system05.js?v=20261128"></script>
 </body>
 </html>
